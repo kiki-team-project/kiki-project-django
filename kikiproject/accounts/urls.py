@@ -17,14 +17,12 @@ urlpatterns = [
     path("oauth/kakao/", views.KakaoLoginView.as_view(), name="kakao_login"),
     # path("oauth/google/", views.GoogleLoginView.as_view(), name="google_login"),
     # path("oauth/naver/", views.NaverLoginView.as_view(), name="naver_login"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("reset-password/", views.ResetPasswordView.as_view(), name="reset_password"),
     path(
         "reset/<str:uidb64>/<str:token>/",
         views.UserResetPasswordPermitView.as_view(),
         name="user_reset_password_permit",
     ),
-    path(
-        "change-password/", views.ChangePasswordView.as_view(), name="change_password"
-    ),
+    path("change-password/", views.ChangePasswordView.as_view(), name="change_password"),
+    path("<int:user_id>/", views.UserDetailView.as_view(), name="user_detail"),
 ]

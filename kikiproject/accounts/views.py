@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import (
     NotFound,
     PermissionDenied,
@@ -113,7 +113,7 @@ class UserSignUpPermitView(APIView):
                 )
                 to_email = user.email
                 send_mail(
-                    "안녕하세요 Cookai입니다. 회원가입을 축하드립니다!",
+                    "안녕하세요 키키입니다. 회원가입을 축하드립니다!",
                     "_",
                     settings.DEFAULT_FROM_MAIL,
                     [to_email],
@@ -126,6 +126,9 @@ class UserSignUpPermitView(APIView):
 
 
 class UserResetPasswordPermitView(APIView):
+    '''
+    비밀번호 초기화 클래스
+    '''
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
@@ -140,10 +143,16 @@ class UserResetPasswordPermitView(APIView):
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    '''
+    simpleJWT 로그인 함수 커스터마이징
+    '''
     serializer_class = CustomTokenObtainPairSerializer
 
 
 class KakaoLoginView(APIView):
+    '''
+    카카오 소셜로그인 함수
+    '''
     def get(self, request):
         return Response(settings.KK_API_KEY, status=status.HTTP_200_OK)
 
@@ -185,67 +194,11 @@ class KakaoLoginView(APIView):
             return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class GoogleLoginView(APIView):
-#     def get(self, request):
-#         return Response(settings.GC_ID, status=status.HTTP_200_OK)
-
-#     def post(self, request):
-#         try:
-#             # with transaction.atomic():
-#             access_token = request.data["access_token"]
-#             user_data = requests.get(
-#                 "https://www.googleapis.com/oauth2/v2/userinfo",
-#                 headers={"Authorization": f"Bearer {access_token}"},
-#             )
-#             user_data = user_data.json()
-#             data = {
-#                 "email": user_data.get("email"),
-#                 "username": user_data.get("name"),
-#                 "avatar": user_data.get("picture"),
-#                 "login_type": "google",
-#                 "is_active": True,
-#             }
-#             return social_login_validate(**data)
-#         except Exception:
-#             return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class NaverLoginView(APIView):
-#     def get(self, request):
-#         return Response(settings.NC_ID, status=status.HTTP_200_OK)
-
-#     def post(self, request):
-#         try:
-#             # with transaction.atomic():
-#             code = request.data.get("naver_code")
-#             state = request.data.get("state")
-#             access_token = requests.post(
-#                 f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&code={code}&client_id={settings.NC_ID}&client_secret={settings.NC_SECRET}&state={state}",
-#                 headers={"Accept": "application/json"},
-#             )
-#             access_token = access_token.json().get("access_token")
-#             user_data = requests.get(
-#                 "https://openapi.naver.com/v1/nid/me",
-#                 headers={
-#                     "Authorization": f"Bearer {access_token}",
-#                     "Accept": "application/json",
-#                 },
-#             )
-#             user_data = user_data.json().get("response")
-#             data = {
-#                 "avatar": user_data.get("profile_image"),
-#                 "email": user_data.get("email"),
-#                 "username": user_data.get("nickname"),
-#                 "login_type": "naver",
-#                 "is_active": True,
-#             }
-#             return social_login_validate(**data)
-#         except Exception:
-#             return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
-
-
 def social_login_validate(**kwargs):
-    # """소셜 로그인, 회원가입"""
+    """
+    통합 소셜 로그인 함수
+    DB에 계정 없을 시 자동으로 회원가입 절차 밟음
+    """
     data = {k: v for k, v in kwargs.items()}
     email = data.get("email")
     login_type = data.get("login_type")
@@ -301,7 +254,12 @@ def social_login_validate(**kwargs):
 
 
 class ResetPasswordView(APIView):
-    # """비밀번호 찾기. 이메일 인증하면 비밀번호 재설정할 기회를 준다. 주석추가에정,이메일 인증 추가예정"""
+    """
+    비밀번호 찾기.
+    이메일 인증하면 비밀번호 재설정할 기회를 준다.
+    Post : 비밀번호 초기화 템플릿 전송 후 초기화
+    Put : 새 비밀번호로 수정
+    """
 
     def post(self, request):
         try:
@@ -322,7 +280,7 @@ class ResetPasswordView(APIView):
                     )
                     to_email = user.email
                     send_mail(
-                        "안녕하세요 Cookai입니다. 비밀번호 초기화 메일이 도착했어요!",
+                        "안녕하세요 키키입니다. 비밀번호 초기화 메일이 도착했어요!",
                         "_",
                         settings.DEFAULT_FROM_MAIL,
                         [to_email],
@@ -382,22 +340,6 @@ class ResetPasswordView(APIView):
         else:
             return Response({"error": "잘못된 접근입니다!"}, status=status.HTTP_403_FORBIDDEN)
 
-    def patch(self, request):
-        uidb64 = request.data.get("uidb64")
-        token = request.data.get("token")
-        user_id = request.data.get("user_id")
-        user = get_object_or_404(User, id=user_id)
-        if not uidb64 or not token:
-            return Response({"error": "잘못된 접근입니다!"}, status=status.HTTP_403_FORBIDDEN)
-        if user.login_type != "normal":
-            user.is_active = True
-            user.save()
-            return Response({"message": "복구되었습니다!"}, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"error": "해당 회원은 소셜 계정이 아닙니다!"}, status=status.HTTP_403_FORBIDDEN
-            )
-
 
 class ChangePasswordView(APIView):
     # """노말 로그인 회원만 비번 바꾸기. 주석추가예정"""
@@ -446,7 +388,13 @@ class ChangePasswordView(APIView):
 
 
 class UserDetailView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    '''
+    마이페이지 관련 클래스
+    get : 유저 프로필 조회
+    put : 유저 프로필(닉네임) 수정
+    patch : 유저 삭제
+    '''
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
         # """유저 프로필 조회 주석 추가 예정"""
