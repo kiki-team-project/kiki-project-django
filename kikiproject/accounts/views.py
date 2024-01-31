@@ -128,6 +128,7 @@ class UserSignUpPermitView(APIView):
 class UserResetPasswordPermitView(APIView):
     '''
     비밀번호 초기화 클래스
+    토큰이 유효할 경우, 비밀번호 변경 페이지로 리다이렉트
     '''
     def get(self, request, uidb64, token):
         try:
@@ -226,7 +227,6 @@ def social_login_validate(**kwargs):
                 status=status.HTTP_400_BAD_REQUEST,
             )
     except User.DoesNotExist:
-        # with transaction.atomic():
         new_user = User.objects.create(**data)
         new_user.set_unusable_password()
         new_user.save()
