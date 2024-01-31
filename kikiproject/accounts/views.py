@@ -164,7 +164,7 @@ class KakaoLoginView(APIView):
             data = {
                 "grant_type": "authorization_code",
                 "client_id": settings.KK_API_KEY,
-                "redirect_uri": f"{settings.FRONT_BASE_URL}/index.html",
+                "redirect_uri": f"{settings.FRONT_BASE_URL}/index.html", # 리다이렉트 링크는 배포 링크에 맞춰 수정
                 "code": auth_code,
             }
             kakao_token = requests.post(
@@ -181,11 +181,11 @@ class KakaoLoginView(APIView):
                 },
             )
             user_data = user_data.json()
+            # data 파라미터는 프론트엔드에서 설정
             data = {
-                "avatar": user_data.get("properties").get("profile_image"),
+                "photo": user_data.get("properties").get("profile_image"),
                 "email": user_data.get("kakao_account").get("email"),
                 "username": user_data.get("properties").get("nickname"),
-                "gender": user_data.get("kakao_account").get("gender"),
                 "login_type": "kakao",
                 "is_active": True,
             }
@@ -456,3 +456,16 @@ class UserDetailView(APIView):
                 return Response(
                     {"error": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN
                 )
+            
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated)
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({'message': '성공적으로 로그아웃되었습니다.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': '유효하지 않거나, 만기된 토큰입니다.'}, status=status.HTTP_400_BAD_REQUEST)

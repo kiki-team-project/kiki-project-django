@@ -89,5 +89,5 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["email"] = user.email
         token["username"] = user.username
         token["login_type"] = user.login_type
-        token["avatar"] = user.avatar
+        token["photo"] = user.photo
         return token
