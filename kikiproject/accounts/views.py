@@ -342,7 +342,9 @@ class ResetPasswordView(APIView):
 
 
 class ChangePasswordView(APIView):
-    # """노말 로그인 회원만 비번 바꾸기. 주석추가예정"""
+    """
+    노말 로그인 회원만 비번 바꾸기. 주석추가예정
+    """
 
     permission_classes = [IsAuthenticated]
 
@@ -414,7 +416,6 @@ class UserDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, user_id):
-        # """유저 프로필 수정"""
         user = get_object_or_404(User, id=user_id)
         if request.user.id == user_id:
             serializer = UserSerializer(
