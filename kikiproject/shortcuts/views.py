@@ -20,36 +20,36 @@ class ShortcutKeyList(APIView):
         return Response(serializer.data)
     
 
-# class ShortcutKeyDetail(APIView):
+class ShortcutKeyDetail(APIView):
 
-#     def get(self, request, index, format=None):
-#         shortcut = ShortcutKey.objects.get(index=index)
-#         shortcut.bookmark += 1
-#         shortcut.save()
+    def get(self, request, format=None):
         
-#         shortcut_keys = ShortcutKey.objects.all()[:5]  # 상위 5개 레코드 가져오기
-#         serializer = ShortcutKeySerializer(shortcut_keys, many=True)
-#         return Response(serializer.data)
+        shortcut_keys = ShortcutKey.objects.all()[:5]  # 상위 5개 레코드 가져오기
+        serializer = ShortcutKeySerializer(shortcut_keys, many=True)
+        return Response(serializer.data)
     
 class UpdateBookmarkAndRetrieveTop(APIView):
-    def get(self, request, format=None):
-        # Get the platform and id from query parameters
-        platform = request.query_params.get('platform')
-        id = request.query_params.get('id')
+    
+    def get(self, request, format=None):        
 
-        if platform is None or id is None:
-            return Response({"error": "Platform and ID must be provided."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            platform = request.query_params.get('platform')
+            id = request.query_params.get('id')
 
-        # Update the bookmark count
-        shortcut = get_object_or_404(ShortcutKey, id=id, platform=platform)
-        shortcut.bookmark += 1
-        shortcut.save()
+            if platform is None or id is None:
+                return Response({"error": "Platform and ID must be provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Retrieve top 5 shortcuts based on bookmark within the same platform
-        top_shortcuts = ShortcutKey.objects.filter(platform=platform).order_by('-bookmark')[:5]
-        serializer = ShortcutKeySerializer(top_shortcuts, many=True)
-
-        return Response(serializer.data)
+            # Update the bookmark count
+            shortcut = get_object_or_404(ShortcutKey, id=id, platform=platform)
+            shortcut.bookmark += 1
+            shortcut.save()
+            # Retrieve top 5 shortcuts based on bookmark within the same platform
+            # top_shortcuts = ShortcutKey.objects.filter(platform=platform).order_by('-bookmark')[:5]
+            # serializer = ShortcutKeySerializer(top_shortcuts, many=True)
+            return Response({"message": "success", "code" : 0}, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Log the exception if needed
+            return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)
        
 class ShortcutKeyRank(APIView):
     def get(self, request, format=None):
