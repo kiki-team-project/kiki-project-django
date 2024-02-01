@@ -1,0 +1,11 @@
+from django.urls import path
+from .views import ShortcutKeyList, ProgramListView, ShortcutKeyRank, UpdateBookmarkAndRetrieveTop
+from rest_framework.routers import DefaultRouter
+
+urlpatterns = [
+    path('shortcut-keys/', ShortcutKeyList.as_view(), name='shortcut-key-list'),
+    # path('shortcut-keys/<int:index>/', ShortcutKeyDetail.as_view(), name='shortcut-key-detail'),
+    path('shortcut-keys/rank/', ShortcutKeyRank.as_view(), name='shortcut-key-rank'),
+    path('shortcut-keys/programs/', ProgramListView.as_view(), name='program-list'),
+    path('shortcut-keys/bookmark/', UpdateBookmarkAndRetrieveTop.as_view(), name='update-bookmark-retrieve-top'),
+]

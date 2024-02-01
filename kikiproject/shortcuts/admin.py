@@ -1,3 +1,10 @@
+
 from django.contrib import admin
 
-# Register your models here.
+from .models import (
+    ShortcutKey,
+    ProgramList
+)
+
+admin.site.register(ShortcutKey)
+admin.site.register(ProgramList)
