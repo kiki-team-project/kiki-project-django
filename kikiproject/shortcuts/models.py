@@ -1,5 +1,13 @@
 from django.db import models
 
+class ProgramList(models.Model):
+
+    platform = models.CharField(max_length=100, verbose_name="플렛폼")
+    image = models.TextField(verbose_name="로고 이미지")
+    
+    def __str__(self):
+        return self.platform
+    
 class ShortcutKey(models.Model):
     category = models.CharField(max_length=100, verbose_name="카테고리")
     keys = models.CharField(max_length=100, verbose_name="키 조합")
@@ -12,4 +20,4 @@ class ShortcutKey(models.Model):
         ordering = ['-bookmark', '-index']  # 내림차순 정렬
         
     def __str__(self):
-        return self.keys.replace(" ", "+")
+        return f"{self.keys.replace(' ', '+')}({self.platform})"

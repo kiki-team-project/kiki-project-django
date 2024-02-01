@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import Post, Comment
+from .models import Post, Comment, CategoryList, PlatformList
 
 User = get_user_model()
 
@@ -19,11 +19,25 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['author', 'title', 'content', 'created_at', 'updated_at']
+        fields = ['id', 'author', 'title', 'content', 'category', 'platform', 'created_at', 'updated_at']
 
 class CommentSerializer(serializers.ModelSerializer):
     author = UserEmailField()
 
     class Meta:
         model = Comment
-        fields = ['author', 'post', 'content', 'created_at']
+        fields = ['id', 'author', 'post', 'content', 'created_at']
+        
+        
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CategoryList
+        fields = ['category']
+        
+        
+class PlatformSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PlatformList
+        fields = ['platform']
