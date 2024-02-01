@@ -30,7 +30,11 @@ from accounts.email_tokens import account_activation_token
 
 # Create your views here.
 class UserView(APIView):
-    # """유저전체보기, 주석 추가 예정"""
+    '''
+    get : 유저 전체 보기
+    post : 회원가입 과정
+        조건 통과 시 UserSerializer 거쳐서 회원가입됨
+    '''
 
     def get(self, request):
         user = User.objects.all()
@@ -69,11 +73,6 @@ class UserView(APIView):
         if len(password) < 6:
             return Response(
                 {"error": "비밀번호는 6자리 이상이어야 합니다."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if not re.search(r"[a-zA-Z]", password):
-            return Response(
-                {"error": "비밀번호는 하나 이상의 영문이 포함되어야 합니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if len(username) > 10 or len(username) < 2:
