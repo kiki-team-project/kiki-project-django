@@ -5,12 +5,17 @@ from community.models import Post, Comment, CategoryList, PlatformList
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 
-
+class CustomPagination(PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response(data)
+    
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-
+    pagination_class = CustomPagination
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -68,6 +73,7 @@ class PostViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    pagination_class = CustomPagination
     
     def create(self, request, *args, **kwargs):
         print(request.data)
@@ -83,6 +89,14 @@ class CommentViewSet(viewsets.ModelViewSet):
         
     def get_queryset(self):
         queryset = Comment.objects.all()
+        comment_id = self.request.query_params.get('id')
+        post_id = self.request.query_params.get('post')
+
+        if comment_id is not None:
+            queryset = queryset.filter(id=comment_id)
+        if post_id is not None:
+            queryset = queryset.filter(post_id=post_id)
+
         return queryset
     
     def destroy(self, request, *args, **kwargs):
