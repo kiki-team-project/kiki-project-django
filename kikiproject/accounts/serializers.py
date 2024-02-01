@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.conf import settings
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.serializers import (
@@ -74,9 +75,23 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    class Meta:
+        model = User
+        fields = ('old_password', 'new_password')
+        extra_kwargs = {'new_password': {'write_only': True, 'required': True},
+                        'old_password': {'write_only': True, 'required': True}}
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+
+
 class PublicUserSerializer(ModelSerializer):
-    is_host = SerializerMethodField()
-    total_bookmark_articles = SerializerMethodField()
+    # is_host = SerializerMethodField()
+    # total_bookmark_articles = SerializerMethodField()
 
     class Meta:
         model = User
@@ -86,12 +101,12 @@ class PublicUserSerializer(ModelSerializer):
             "password",
         )
 
-    def get_is_host(self, user):
-        request = self.context["request"]
-        return request.user.id == user.id
+    # def get_is_host(self, user):
+    #     request = self.context["request"]
+    #     return request.user.id == user.id
 
-    def get_total_bookmark_articles(self, user):
-        return user.bookmarks.count()
+    # def get_total_bookmark_articles(self, user):
+    #     return user.bookmarks.count()
     
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

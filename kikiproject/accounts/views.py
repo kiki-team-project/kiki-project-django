@@ -1,11 +1,13 @@
 import re
 import requests
+
 from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import redirect
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 from django.template.loader import render_to_string
 from rest_framework import status, generics
 from rest_framework.views import APIView
@@ -23,6 +25,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from accounts.serializers import (
     UserSerializer,
     LoginSerializer,
+    ChangePasswordSerializer,
     PublicUserSerializer,
     CustomTokenObtainPairSerializer,
 )
@@ -129,32 +132,11 @@ class UserSignUpPermitView(APIView):
             return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
         
 
-class LoginView(APIView):
-    permission_classes = [ AllowAny ]
-    def post(self, request):
-        user = authenticate(
-            email = request.data.get("email"),
-            password = request.data.get("password"),
-        )
-        print(user)
-        if user:
-            login_serializer = LoginSerializer(user)
-            token = TokenObtainPairSerializer.get_token(user)
-            refresh_token = str(token)
-            access_token = str(token.access_token)
-            response = Response(
-                {
-                    "user": login_serializer.data,
-                    "message": "login success",
-                    "token": {
-                        "access": access_token,
-                        "refresh": refresh_token,
-                    },
-                },
-                status=status.HTTP_200_OK,
-            )
-            return response
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+class LoginView(TokenObtainPairView):
+    '''
+    TokenObtainPairView를 커스터마이징함
+    '''
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class UserResetPasswordPermitView(APIView):

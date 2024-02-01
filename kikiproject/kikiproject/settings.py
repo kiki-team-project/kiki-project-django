@@ -166,4 +166,4 @@ SIMPLE_JWT = {
 }
 
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
