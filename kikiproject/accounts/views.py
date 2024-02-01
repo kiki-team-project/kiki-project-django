@@ -26,7 +26,7 @@ from accounts.serializers import (
 from accounts import serializers
 from accounts.models import User
 from accounts.validators import validate_password
-from accounts.email_tokens import account_activation_token
+from accounts.emails import account_activation_token
 
 # Create your views here.
 class UserView(APIView):
@@ -85,8 +85,10 @@ class UserView(APIView):
             context={"request": request},
         )
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            newuser = serializer.save()
+            response = Response({"message": "register success"},status=status.HTTP_201_CREATED)
+            if newuser:
+                return response
         else:
             return Response(
                 serializer.errors,
