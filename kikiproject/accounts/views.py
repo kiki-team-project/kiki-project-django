@@ -5,21 +5,24 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import redirect
 from django.core.mail import send_mail
+from django.contrib.auth import authenticate
 from django.template.loader import render_to_string
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import (
     NotFound,
     PermissionDenied,
     ParseError,
 )
 from rest_framework.generics import get_object_or_404
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from accounts.serializers import (
     UserSerializer,
+    LoginSerializer,
     PublicUserSerializer,
     CustomTokenObtainPairSerializer,
 )
@@ -124,6 +127,34 @@ class UserSignUpPermitView(APIView):
             return Response({"error": "AUTH_FAIL"}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class LoginView(APIView):
+    permission_classes = [ AllowAny ]
+    def post(self, request):
+        user = authenticate(
+            email = request.data.get("email"),
+            password = request.data.get("password"),
+        )
+        print(user)
+        if user:
+            login_serializer = LoginSerializer(user)
+            token = TokenObtainPairSerializer.get_token(user)
+            refresh_token = str(token)
+            access_token = str(token.access_token)
+            response = Response(
+                {
+                    "user": login_serializer.data,
+                    "message": "login success",
+                    "token": {
+                        "access": access_token,
+                        "refresh": refresh_token,
+                    },
+                },
+                status=status.HTTP_200_OK,
+            )
+            return response
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserResetPasswordPermitView(APIView):
@@ -144,11 +175,11 @@ class UserResetPasswordPermitView(APIView):
             return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    '''
-    simpleJWT 로그인 함수 커스터마이징
-    '''
-    serializer_class = CustomTokenObtainPairSerializer
+# class CustomTokenObtainPairView(TokenObtainPairView):
+#     '''
+#     simpleJWT 로그인 함수 커스터마이징
+#     '''
+#     serializer_class = CustomTokenObtainPairSerializer
 
 
 class KakaoLoginView(APIView):

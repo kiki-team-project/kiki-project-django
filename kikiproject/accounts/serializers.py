@@ -68,6 +68,12 @@ class UserSerializer(ModelSerializer):
     #     return user.bookmarks.count()
 
 
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+
+
 class PublicUserSerializer(ModelSerializer):
     is_host = SerializerMethodField()
     total_bookmark_articles = SerializerMethodField()
