@@ -7,17 +7,15 @@ from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import redirect
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from rest_framework import status, generics
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import (
-    NotFound,
     PermissionDenied,
     ParseError,
 )
 from rest_framework.generics import get_object_or_404
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from accounts.serializers import (
@@ -474,3 +472,68 @@ class LogoutView(APIView):
             return Response({'message': '성공적으로 로그아웃되었습니다.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': '유효하지 않거나, 만기된 토큰입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+class ProSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, account_id):
+        user = get_object_or_404(User, id=account_id)
+        programs = user.prosearch.split(", ")
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if programs == [""]:
+            return Response({"message" : "아직 즐겨찾기한 프로그램이 없습니다."}, status=status.HTTP_200_OK)
+        else:
+            answer = [program for program in programs if program != ""]
+            return Response(answer, status=status.HTTP_200_OK)
+
+    def post(self, request, account_id):
+        programsearch = request.data.get("programsearch")
+        user = get_object_or_404(User, id=account_id)
+        programs = user.prosearch.split(", ")
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if programsearch not in programs:
+            programs.append(programsearch)
+            user.prosearch = ", ".join(programs)
+            user.save()
+            return Response({"message": "즐겨찾기에 추가되었습니다."}, status=status.HTTP_200_OK)
+        else:
+            programs.remove(programsearch)
+            user.prosearch = ", ".join(programs)
+            user.save()
+            return Response({"message": "즐겨찾기에서 삭제되었습니다."}, status=status.HTTP_200_OK)
+
+class KeySearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, account_id):
+        user = get_object_or_404(User, id=account_id)
+        keys = user.keysearch.split(", ")
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if keys == [""]:
+            return Response({"message" : "아직 즐겨찾기한 단축키가 없습니다."}, status=status.HTTP_200_OK)
+        else:
+            answer = [key for key in keys if key != ""]
+            return Response(answer, status=status.HTTP_200_OK)
+        
+    def post(self, request, account_id):
+        kkeysearch = request.data.get("kkeysearch")
+        user = get_object_or_404(User, id=account_id)
+        keys = user.keysearch.split(", ")
+        print(keys)
+
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if kkeysearch not in keys:
+            keys.append(kkeysearch)
+            user.keysearch = ", ".join(keys)
+            user.save()
+            return Response({"message": "즐겨찾기에 추가되었습니다."}, status=status.HTTP_200_OK)
+        else:
+            keys.remove(kkeysearch)
+            user.keysearch = ", ".join(keys)
+            user.save()
+            return Response({"message": "즐겨찾기에서 삭제되었습니다."}, status=status.HTTP_200_OK)
