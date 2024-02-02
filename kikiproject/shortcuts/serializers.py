@@ -2,10 +2,20 @@ from rest_framework import serializers
 from shortcuts.models import ShortcutKey, ProgramList
 
 class ProgramListSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = ProgramList
-        fields = ['platform', 'image']
+        fields = ['platform', 'image_url']
+
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if obj.image and hasattr(obj.image, 'url'):
+            return request.build_absolute_uri(obj.image.url)
+        else:
+            return None
         
+    
 class ShortcutKeySerializer(serializers.ModelSerializer):
     keys_list = serializers.SerializerMethodField()
 

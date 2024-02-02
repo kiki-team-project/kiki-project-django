@@ -3,7 +3,8 @@ from django.db import models
 class ProgramList(models.Model):
 
     platform = models.CharField(max_length=100, verbose_name="플렛폼")
-    image = models.TextField(verbose_name="로고 이미지")
+    image = models.ImageField(upload_to='images/') 
+    #image = models.TextField(verbose_name="로고 이미지")
     
     def __str__(self):
         return self.platform

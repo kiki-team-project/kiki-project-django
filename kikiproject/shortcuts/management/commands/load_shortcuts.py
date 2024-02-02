@@ -19,18 +19,15 @@ class Command(BaseCommand):
 
             platforms_data = data.get("platforms", [])
             
-            for platform in platforms_data:               
-                # 이미지 파일을 열기
-                image_dir = f"shortcuts/management/commands/logo/{platform}.png"
+            for platform in platforms_data:
+                # ImageModel 인스턴스 생성
+                instance = ProgramList(platform=platform)
                 
-                with open(image_dir, "rb") as image_file:
-                    # 이미지를 읽고 Base64로 인코딩
-                    encoded_string = base64.b64encode(image_file.read()).decode()
+                # 이미지 파일 업로드 (예시 파일 경로: 'path/to/image.jpg')
+                instance.image.save(f'{platform}.png', open(f'static/images/{platform}.png', 'rb'))               
+                # 데이터베이스에 저장
+                instance.save()             
                 
-                ProgramList.objects.create(
-                    platform=platform,
-                    image = encoded_string
-                )
 
             self.stdout.write(self.style.SUCCESS('Successfully loaded Community data.'))
         except Exception as e:

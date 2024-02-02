@@ -67,5 +67,5 @@ class ShortcutKeyRank(APIView):
 class ProgramListView(APIView):
     def get(self, request, format=None):
         shortcuts = ProgramList.objects.all()
-        serializer = ProgramListSerializer(shortcuts, many=True)
+        serializer = ProgramListSerializer(shortcuts, many=True, context={'request': request})
         return Response(serializer.data)
