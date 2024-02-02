@@ -38,13 +38,11 @@ KK_API_KEY = os.environ.get("KK_API_KEY")
 EMAIL_HOST_USER = os.environ.get("EMAIL")
 EMAIL_HOST_PASSWORD = os.environ.get("PASSWORD")
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER
-FRONT_BASE_URL = "http://127.0.0.1:5500"
-BACKEND_BASE_URL = "http://127.0.0.1:8000"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -77,9 +75,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-	'http://localhost:5000',
-]
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'kikiproject.urls'
 
