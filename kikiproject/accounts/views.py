@@ -1,36 +1,46 @@
 import re
 import requests
+
 from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import redirect
 from django.core.mail import send_mail
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 from django.template.loader import render_to_string
 from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import (
     NotFound,
     PermissionDenied,
     ParseError,
 )
 from rest_framework.generics import get_object_or_404
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from accounts.serializers import (
     UserSerializer,
+    LoginSerializer,
+    ChangePasswordSerializer,
     PublicUserSerializer,
     CustomTokenObtainPairSerializer,
 )
 from accounts import serializers
 from accounts.models import User
 from accounts.validators import validate_password
-from accounts.email_tokens import account_activation_token
+from accounts.emails import account_activation_token
 
 # Create your views here.
 class UserView(APIView):
-    # """유저전체보기, 주석 추가 예정"""
+    '''
+    get : 유저 전체 보기
+    post : 회원가입 과정
+        조건 통과 시 UserSerializer 거쳐서 회원가입됨
+    '''
 
     def get(self, request):
         user = User.objects.all()
@@ -71,11 +81,6 @@ class UserView(APIView):
                 {"error": "비밀번호는 6자리 이상이어야 합니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if not re.search(r"[a-zA-Z]", password):
-            return Response(
-                {"error": "비밀번호는 하나 이상의 영문이 포함되어야 합니다."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         if len(username) > 10 or len(username) < 2:
             return Response(
                 {"error": "닉네임은 2자리 이상, 10자리 이하입니다."},
@@ -86,8 +91,10 @@ class UserView(APIView):
             context={"request": request},
         )
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            newuser = serializer.save()
+            response = Response({"message": "register success"},status=status.HTTP_201_CREATED)
+            if newuser:
+                return response
         else:
             return Response(
                 serializer.errors,
@@ -123,6 +130,13 @@ class UserSignUpPermitView(APIView):
             return Response({"error": "AUTH_FAIL"}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class LoginView(TokenObtainPairView):
+    '''
+    TokenObtainPairView를 커스터마이징함
+    '''
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class UserResetPasswordPermitView(APIView):
@@ -143,11 +157,11 @@ class UserResetPasswordPermitView(APIView):
             return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    '''
-    simpleJWT 로그인 함수 커스터마이징
-    '''
-    serializer_class = CustomTokenObtainPairSerializer
+# class CustomTokenObtainPairView(TokenObtainPairView):
+#     '''
+#     simpleJWT 로그인 함수 커스터마이징
+#     '''
+#     serializer_class = CustomTokenObtainPairSerializer
 
 
 class KakaoLoginView(APIView):
@@ -460,7 +474,7 @@ class UserDetailView(APIView):
             
 
 class LogoutView(APIView):
-    permission_classes = (IsAuthenticated)
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
