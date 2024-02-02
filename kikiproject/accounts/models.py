@@ -28,14 +28,14 @@ class User(AbstractUser):
         KAKAO = ("kakao", "카카오")
         GOOGLE = ("google", "구글")
         NAVER = ("naver", "네이버")
-    
-    email = models.EmailField(
+    username =models.EmailField(
         max_length=255,
         unique=True,
     )
-    username = models.CharField(
-        max_length=23,
+    nickname = models.CharField(
+        max_length=10,
         unique=True,
+        default='Default nickname',
     )
     password = models.CharField(max_length=256, validators=[validate_password])
     photo = models.URLField(
