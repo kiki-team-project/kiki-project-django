@@ -23,4 +23,6 @@ urlpatterns = [
     path("change-password/", views.ChangePasswordView.as_view(), name="change_password"),
     path("<int:user_id>/", views.UserDetailView.as_view(), name="user_detail"),
     path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('search/program/<int:account_id>/', views.ProSearchView.as_view(), name='pro-search'),
+    path('search/key/<int:account_id>/', views.KeySearchView.as_view(), name='key-search'),
 ]

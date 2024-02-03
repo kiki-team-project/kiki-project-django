@@ -55,8 +55,8 @@ class UserSerializer(ModelSerializer):
         return user
     
     def validate(self, attrs): # 중복 체크
-        email = attrs['email']
-        if User.objects.filter(email=email).exists():
+        username = attrs['username']
+        if User.objects.filter(username=username).exists():
             raise serializers.ValidationError("user already exists")
         return attrs
 
@@ -69,24 +69,18 @@ class UserSerializer(ModelSerializer):
     #     return user.bookmarks.count()
 
 
-class LoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = "__all__"
+# class ChangePasswordSerializer(serializers.ModelSerializer):
+#     old_password = serializers.CharField(required=True)
+#     new_password = serializers.CharField(required=True)
+#     class Meta:
+#         model = User
+#         fields = ('old_password', 'new_password')
+#         extra_kwargs = {'new_password': {'write_only': True, 'required': True},
+#                         'old_password': {'write_only': True, 'required': True}}
 
-
-class ChangePasswordSerializer(serializers.ModelSerializer):
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-    class Meta:
-        model = User
-        fields = ('old_password', 'new_password')
-        extra_kwargs = {'new_password': {'write_only': True, 'required': True},
-                        'old_password': {'write_only': True, 'required': True}}
-
-    def validate_new_password(self, value):
-        validate_password(value)
-        return value
+#     def validate_new_password(self, value):
+#         validate_password(value)
+#         return value
 
 
 class PublicUserSerializer(ModelSerializer):
@@ -109,13 +103,33 @@ class PublicUserSerializer(ModelSerializer):
     #     return user.bookmarks.count()
     
 
+class UserDetailSerializer(ModelSerializer):
+    # is_host = SerializerMethodField()
+    # total_bookmark_articles = SerializerMethodField()
+
+    class Meta:
+        model = User
+        exclude = (
+            "groups",
+            "user_permissions",
+        )
+        extra_kwargs = {
+            "username": {
+                "read_only": True,
+            },
+            "password": {
+                "write_only": True,
+            },
+        }
+
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
         token["id"] = user.id
-        token["email"] = user.email
         token["username"] = user.username
+        token["nickname"] = user.nickname
         token["login_type"] = user.login_type
         token["photo"] = user.photo
         return token

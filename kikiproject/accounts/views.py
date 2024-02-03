@@ -6,27 +6,22 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import redirect
 from django.core.mail import send_mail
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
 from django.template.loader import render_to_string
-from rest_framework import status, generics
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import (
-    NotFound,
     PermissionDenied,
     ParseError,
 )
 from rest_framework.generics import get_object_or_404
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from accounts.serializers import (
     UserSerializer,
-    LoginSerializer,
-    ChangePasswordSerializer,
     PublicUserSerializer,
+    UserDetailSerializer,
     CustomTokenObtainPairSerializer,
 )
 from accounts import serializers
@@ -48,19 +43,19 @@ class UserView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        email = request.data.get("email")
+        username = request.data.get("username")
         password = request.data.get("password")
         password2 = request.data.get("second_password")
-        username = request.data.get("username")
+        nickname = request.data.get("nickname")
         if not password or not password2:
             return Response(
                 {"error": "비밀번호 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if not email:
+        if not username:
             return Response(
                 {"error": "이메일 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if not username:
+        if not nickname:
             return Response(
                 {"error": "닉네임 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -68,11 +63,11 @@ class UserView(APIView):
             return Response(
                 {"error": "비밀번호가 일치하지 않습니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if User.objects.filter(email=email).exists():
+        if User.objects.filter(username=username).exists():
             return Response(
                 {"error": "해당 이메일을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if User.objects.filter(username=username).exists():
+        if User.objects.filter(nickname=nickname).exists():
             return Response(
                 {"error": "해당 닉네임을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -81,7 +76,7 @@ class UserView(APIView):
                 {"error": "비밀번호는 6자리 이상이어야 합니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if len(username) > 10 or len(username) < 2:
+        if len(nickname) > 10 or len(nickname) < 2:
             return Response(
                 {"error": "닉네임은 2자리 이상, 10자리 이하입니다."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -157,13 +152,6 @@ class UserResetPasswordPermitView(APIView):
             return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class CustomTokenObtainPairView(TokenObtainPairView):
-#     '''
-#     simpleJWT 로그인 함수 커스터마이징
-#     '''
-#     serializer_class = CustomTokenObtainPairSerializer
-
-
 class KakaoLoginView(APIView):
     '''
     카카오 소셜로그인 함수
@@ -223,11 +211,11 @@ def social_login_validate(**kwargs):
         )
     try:
         user = User.objects.get(email=email)
-        if user.is_active == False:
-            return Response(
-                {"error": "해당 유저는 휴면계정입니다!"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # if user.is_active == False:
+        #     return Response(
+        #         {"error": "해당 유저는 휴면계정입니다!"},
+        #         status=status.HTTP_400_BAD_REQUEST,
+        #     )
         if login_type == user.login_type:
             refresh = RefreshToken.for_user(user)
             access_token = serializers.CustomTokenObtainPairSerializer.get_token(user)
@@ -246,21 +234,21 @@ def social_login_validate(**kwargs):
         new_user.save()
         refresh = RefreshToken.for_user(new_user)
         access_token = serializers.CustomTokenObtainPairSerializer.get_token(new_user)
-        html = render_to_string(
-            "users/email_welcome.html",
-            {
-                "front_base_url": settings.FRONT_BASE_URL,
-                "user": new_user,
-            },
-        )
-        to_email = new_user.email
-        send_mail(
-            "안녕하세요 키키입니다. 회원가입을 축하드립니다!",
-            "_",
-            settings.DEFAULT_FROM_MAIL,
-            [to_email],
-            html_message=html,
-        )
+        # html = render_to_string(
+        #     "users/email_welcome.html",
+        #     {
+        #         "front_base_url": settings.FRONT_BASE_URL,
+        #         "user": new_user,
+        #     },
+        # )
+        # to_email = new_user.email
+        # send_mail(
+        #     "안녕하세요 키키입니다. 회원가입을 축하드립니다!",
+        #     "_",
+        #     settings.DEFAULT_FROM_MAIL,
+        #     [to_email],
+        #     html_message=html,
+        # )
         return Response(
             {"refresh": str(refresh), "access": str(access_token.access_token)},
             status=status.HTTP_200_OK,
@@ -432,7 +420,7 @@ class UserDetailView(APIView):
     def put(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user.id == user_id:
-            serializer = UserSerializer(
+            serializer = UserDetailSerializer(
                 user,
                 data=request.data,
                 partial=True,
@@ -484,3 +472,68 @@ class LogoutView(APIView):
             return Response({'message': '성공적으로 로그아웃되었습니다.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': '유효하지 않거나, 만기된 토큰입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+class ProSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, account_id):
+        user = get_object_or_404(User, id=account_id)
+        programs = user.prosearch.split(", ")
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if programs == [""]:
+            return Response({"message" : "아직 즐겨찾기한 프로그램이 없습니다."}, status=status.HTTP_200_OK)
+        else:
+            answer = [program for program in programs if program != ""]
+            return Response(answer, status=status.HTTP_200_OK)
+
+    def post(self, request, account_id):
+        programsearch = request.data.get("programsearch")
+        user = get_object_or_404(User, id=account_id)
+        programs = user.prosearch.split(", ")
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if programsearch not in programs:
+            programs.append(programsearch)
+            user.prosearch = ", ".join(programs)
+            user.save()
+            return Response({"message": "즐겨찾기에 추가되었습니다."}, status=status.HTTP_200_OK)
+        else:
+            programs.remove(programsearch)
+            user.prosearch = ", ".join(programs)
+            user.save()
+            return Response({"message": "즐겨찾기에서 삭제되었습니다."}, status=status.HTTP_200_OK)
+
+class KeySearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, account_id):
+        user = get_object_or_404(User, id=account_id)
+        keys = user.keysearch.split(", ")
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if keys == [""]:
+            return Response({"message" : "아직 즐겨찾기한 단축키가 없습니다."}, status=status.HTTP_200_OK)
+        else:
+            answer = [key for key in keys if key != ""]
+            return Response(answer, status=status.HTTP_200_OK)
+        
+    def post(self, request, account_id):
+        kkeysearch = request.data.get("kkeysearch")
+        user = get_object_or_404(User, id=account_id)
+        keys = user.keysearch.split(", ")
+        print(keys)
+
+        if not user.is_authenticated:
+            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
+        if kkeysearch not in keys:
+            keys.append(kkeysearch)
+            user.keysearch = ", ".join(keys)
+            user.save()
+            return Response({"message": "즐겨찾기에 추가되었습니다."}, status=status.HTTP_200_OK)
+        else:
+            keys.remove(kkeysearch)
+            user.keysearch = ", ".join(keys)
+            user.save()
+            return Response({"message": "즐겨찾기에서 삭제되었습니다."}, status=status.HTTP_200_OK)
