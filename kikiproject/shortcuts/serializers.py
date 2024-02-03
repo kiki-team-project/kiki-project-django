@@ -21,7 +21,7 @@ class ShortcutKeySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShortcutKey
-        fields = ['id', 'category', 'description', 'platform', 'keys_list', 'index', 'bookmark']
+        fields = ['id', 'category', 'description', 'platform', 'keys_list', 'index', 'bookmark', 'image']
         
     def get_keys_list(self, obj):
         return obj.keys.split(' ')

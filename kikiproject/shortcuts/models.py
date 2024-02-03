@@ -13,9 +13,10 @@ class ShortcutKey(models.Model):
     category = models.CharField(max_length=100, verbose_name="카테고리")
     keys = models.CharField(max_length=100, verbose_name="키 조합")
     description = models.TextField(verbose_name="설명")
-    platform = models.TextField(verbose_name="플렛폼")
+    platform = models.CharField(max_length=100, verbose_name="플렛폼")
     index = models.IntegerField()
     bookmark = models.IntegerField()
+    image = models.ImageField(upload_to='images/') 
 
     class Meta:
         ordering = ['-bookmark', '-index']  # 내림차순 정렬

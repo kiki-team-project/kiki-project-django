@@ -69,3 +69,21 @@ class ProgramListView(APIView):
         shortcuts = ProgramList.objects.all()
         serializer = ProgramListSerializer(shortcuts, many=True, context={'request': request})
         return Response(serializer.data)
+    
+    
+class ShortcutKeyFavoritesView(APIView):
+    """
+    클라이언트로부터 받은 id_list에 해당하는 ShortcutKey 인스턴스들을 반환합니다.
+    """
+
+    def get(self, request, *args, **kwargs):
+        id_list = request.data.get('id_list', [])
+        
+        # id_list에 해당하는 ShortcutKey 인스턴스들을 조회
+        shortcuts = ShortcutKey.objects.filter(id__in=id_list)
+        
+        # 직렬화
+        serializer = ShortcutKeySerializer(shortcuts, many=True)
+        
+        # JSON 응답 반환
+        return Response(serializer.data, status=status.HTTP_200_OK)

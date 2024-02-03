@@ -24,7 +24,8 @@ class Command(BaseCommand):
                 instance = ProgramList(platform=platform)
                 
                 # 이미지 파일 업로드 (예시 파일 경로: 'path/to/image.jpg')
-                instance.image.save(f'{platform}.png', open(f'static/images/{platform}.png', 'rb'))               
+                image_path = f'/images/{platform}.svg'
+                instance.image = image_path               
                 # 데이터베이스에 저장
                 instance.save()             
                 
@@ -52,14 +53,17 @@ class Command(BaseCommand):
                 keys = shortcut_data.get("keys", [])
                 keys = " ".join(keys)
                 description = shortcut_data.get("description", "")
-
+                
+                image_path = f'/images/{platform}.svg'
+             
                 ShortcutKey.objects.create(
                     category=category,
                     keys=keys,
                     description=description,
                     platform = platform,
                     bookmark = 0,
-                    index = i
+                    index = i,
+                    image = image_path
                 )
 
             self.stdout.write(self.style.SUCCESS('Successfully loaded shortcuts data.'))
