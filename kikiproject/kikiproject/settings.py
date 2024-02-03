@@ -43,8 +43,8 @@ DEFAULT_FROM_MAIL = EMAIL_HOST_USER
 DEBUG = False
 # DEBUG = os.environ.get("DEBUG", "0")
 
-ALLOWED_HOSTS = ["*"]
 
+ALLOWED_HOSTS = ["*"]
 
 
 

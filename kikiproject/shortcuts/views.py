@@ -76,7 +76,7 @@ class ShortcutKeyFavoritesView(APIView):
     클라이언트로부터 받은 id_list에 해당하는 ShortcutKey 인스턴스들을 반환합니다.
     """
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         id_list = request.data.get('id_list', [])
         
         # id_list에 해당하는 ShortcutKey 인스턴스들을 조회
