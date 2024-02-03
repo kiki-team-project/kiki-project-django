@@ -40,48 +40,12 @@ EMAIL_HOST_PASSWORD = os.environ.get("PASSWORD")
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 # DEBUG = os.environ.get("DEBUG", "0")
 
-<<<<<<< HEAD
 ALLOWED_HOSTS = ["*"]
-=======
-# # DEBUG == "1" 이면 배포환경 "0" 이면 개발환경.
-# if DEBUG == "1":
-#     DEBUG = False
-#     ALLOWED_HOSTS = [
-#         "localhost",
-#         "backend",
-#         "https://cookai.today",
-#         "https://www.backend.cookai.today",
-#     ]
-#     KK_API_KEY = os.environ.get("KK_DEPLOY_API_KEY")
-#     FRONT_BASE_URL = "https://cookai.today"
-#     BACKEND_BASE_URL = "https://www.backend.cookai.today"
-#     CORS_ALLOWED_ORIGINS = [
-#         "https://cookai.today",
-#         "https://www.backend.cookai.today",
-#     ]
-#     CSRF_TRUSTED_ORIGINS = [
-#         "https://cookai.today",
-#         "https://www.backend.cookai.today",
-#     ]
 
-# elif DEBUG == "0":
-#     DEBUG = True
-#     ALLOWED_HOSTS = [
-#         "backend",
-#         "localhost",
-#         "127.0.0.1",
-#     ]
-#     KK_API_KEY = os.environ.get("KK_API_KEY")
-#     FRONT_BASE_URL = "http://127.0.0.1:5500"
-#     BACKEND_BASE_URL = "http://127.0.0.1:8000"
-#     CORS_ALLOW_ALL_ORIGINS = True
-#     CSRF_TRUSTED_ALL_ORIGINS = True
-# CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS = []
->>>>>>> feature_jm
+
 
 
 # Application definition
