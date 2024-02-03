@@ -18,32 +18,32 @@
         {
             "category": "File & Properties",
             "keys": ["Ctrl", "Shift", "E"],
-            "description": "출력(저장) Export"
+            "description": "출력(저장)"
         },
         {
             "category": "File & Properties",
             "keys": ["Ctrl", "Alt", "S"],
-            "description": "히스토리 저장 Save to Version History"
+            "description": "히스토리 저장"
         },
         {
             "category": "File & Properties",
             "keys": ["Ctrl", "Shift", "K"],
-            "description": "이미지 삽입 Place Image"
+            "description": "이미지 삽입"
         },
         {
             "category": "Edit",
             "keys": ["Ctrl", "C"],
-            "description": "복사 Copy"
+            "description": "복사"
         },
         {
             "category": "Edit",
             "keys": ["Ctrl", "X"],
-            "description": "잘라내기 Cut"
+            "description": "잘라내기"
         },
         {
             "category": "Edit",
             "keys": ["Ctrl", "V"],
-            "description": "붙여넣기 Paste"
+            "description": "붙여넣기"
         },
         {
             "category": "Edit",
@@ -58,102 +58,102 @@
         {
             "category": "Edit",
             "keys": ["Ctrl", "Shift", "V"],
-            "description": "선택 위에 붙여넣기 Paste Over Selection"
+            "description": "선택 위에 붙여넣기"
         },
         {
             "category": "Edit",
             "keys": ["Alt", "drag"],
-            "description": "중심점 중심으로 사이즈 조절 Resize from Center"
+            "description": "중심점 중심으로 사이즈 조절"
         },
         {
             "category": "Edit",
             "keys": ["Alt", "drag"],
-            "description": "선택 복사 Duplicate Selection"
+            "description": "선택 복사"
         },
         {
             "category": "Edit",
             "keys": ["Ctrl", "Alt", "C"],
-            "description": "속성 복사 Copy Properties"
+            "description": "속성 복사"
         },
         {
             "category": "Edit",
             "keys": ["Ctrl", "Alt", "V"],
-            "description": "속성 붙여넣기 Paste Properties"
+            "description": "속성 붙여넣기"
         },
         {
             "category": "Select",
             "keys": ["Ctrl", "right-click"],
-            "description": "레이어 선택 Select Layer Menu"
+            "description": "레이어 선택"
         },
         {
             "category": "Select",
             "keys": ["Ctrl", "click"],
-            "description": "직접 선택 Deep Select"
+            "description": "직접 선택"
         },
         {
             "category": "View",
             "keys": ["Space", "drag"],
-            "description": "화면 이동 Pan"
+            "description": "화면 이동"
         },
         {
             "category": "View",
             "keys": ["+"],
-            "description": "줌인 Zoom In"
+            "description": "줌인"
         },
         {
             "category": "View",
             "keys": ["Ctrl", "+"],
-            "description": "줌인 Zoom In"
+            "description": "줌인"
         },
         {
             "category": "View",
             "keys": ["Z", "Click"],
-            "description": "줌인 Zoom In"
+            "description": "줌인"
         },
         {
             "category": "View",
             "keys": ["Ctrl", "wheel"],
-            "description": "줌인 Zoom In"
+            "description": "줌인"
         },
         {
             "category": "View",
             "keys": ["-"],
-            "description": "줌아웃 Zoom Out"
+            "description": "줌아웃"
         },
         {
             "category": "View",
             "keys": ["Ctrl", "-"],
-            "description": "줌아웃 Zoom Out"
+            "description": "줌아웃"
         },
         {
             "category": "View",
             "keys": ["Alt", "Z", "Click"],
-            "description": "줌아웃 Zoom Out"
+            "description": "줌아웃"
         },
         {
             "category": "View",
             "keys": ["Ctrl", "wheel"],
-            "description": "줌아웃 Zoom Out"
+            "description": "줌아웃"
         },
         {
             "category": "View",
             "keys": ["Shift", "1"],
-            "description": "화면에 맞추기 Zoom to Fit"
+            "description": "화면에 맞추기"
         },
         {
             "category": "View",
             "keys": ["Shift", "0"],
-            "description": "100%로 맞추기 Zoom to 100%"
+            "description": "100%로 맞추기%"
         },
         {
             "category": "View",
             "keys": ["Ctrl", "Shift", "3"],
-            "description": "외곽선으로 보기 Show Outlines"
+            "description": "외곽선으로 보기"
         },
         {
             "category": "View",
             "keys": ["Ctrl", "Alt", "Y"],
-            "description": "픽셀 모드 프리뷰 Pixel Preview"
+            "description": "픽셀 모드 프리뷰"
         },
         {
             "category": "View",
@@ -203,32 +203,32 @@
         {
             "category": "Arrange",
             "keys": ["Shift", "A"],
-            "description": "오토레이아웃 만들기 Add Auto Layout"
+            "description": "오토레이아웃 만들기"
         },
         {
             "category": "Arrange",
             "keys": ["Alt", "Shift", "A"],
-            "description": "오토레이아웃 해제 Remove Auto Layout"
+            "description": "오토레이아웃 해제"
         },
         {
             "category": "Arrange",
             "keys": ["Ctrl", "]"],
-            "description": "앞으로 가져오기 Bring Forward"
+            "description": "앞으로 가져오기"
         },
         {
             "category": "Arrange",
             "keys": ["Ctrl", "["],
-            "description": "뒤로 보내기 Send Backward"
+            "description": "뒤로 보내기"
         },
         {
             "category": "Arrange",
             "keys": ["Ctrl", "Shift", "]"],
-            "description": "맨 앞으로 가져오기 Bring to Front"
+            "description": "맨 앞으로 가져오기"
         },
         {
             "category": "Arrange",
             "keys": ["Ctrl", "Shift", "["],
-            "description": "맨 뒤로 보내기 Send to Back"
+            "description": "맨 뒤로 보내기"
         },
         {
             "category": "Arrange",
@@ -278,7 +278,7 @@
         {
             "category": "Tools",
             "keys": ["C"],
-            "description": "코멘트 추가 또는 보기 Add/Show Comments"
+            "description": "코멘트 추가 또는 보기"
         },
         {
             "category": "Tools",
@@ -288,37 +288,37 @@
         {
             "category": "Tools",
             "keys": ["Shift", "P"],
-            "description": "연필 툴 Pencil"
+            "description": "연필 툴"
         },
         {
             "category": "Tools",
             "keys": ["R"],
-            "description": "사각형 그리기 Rectangle"
+            "description": "사각형 그리기"
         },
         {
             "category": "Tools",
             "keys": ["O"],
-            "description": "원 그리기 Ellipse"
+            "description": "원 그리기"
         },
         {
             "category": "Tools",
             "keys": ["L"],
-            "description": "선 그리기 Line"
+            "description": "선 그리기"
         },
         {
             "category": "Tools",
             "keys": ["F"],
-            "description": "프레임 생성 Frame"
+            "description": "프레임 생성"
         },
         {
             "category": "Tools",
             "keys": ["S"],
-            "description": "슬라이스 Slice"
+            "description": "슬라이스"
         },
         {
             "category": "Tools",
             "keys": ["I"],
-            "description": "스포이드 툴 Pick Color"
+            "description": "스포이드 툴"
         },
         {
             "category": "Tools",
@@ -328,12 +328,12 @@
         {
             "category": "Tools",
             "keys": ["Alt", "/"],
-            "description": "Fill 제거 (채우기)"
+            "description": "Fill(색채우기) 제거"
         },
         {
             "category": "Tools",
             "keys": ["Shift", "/"],
-            "description": "Stroke 제거 (테두리)"
+            "description": "Stroke(테두리) 제거"
         },
         {
             "category": "Tools",
@@ -343,12 +343,12 @@
         {
             "category": "Text",
             "keys": ["T"],
-            "description": "텍스트 Text"
+            "description": "텍스트"
         },
         {
             "category": "Text",
             "keys": ["Ctrl", "Shift", "V"],
-            "description": "스타일에 맞춰 붙여넣기 Paste and Match Style"
+            "description": "스타일에 맞춰 붙여넣기"
         },
         {
             "category": "Text",
@@ -363,7 +363,7 @@
         {
             "category": "Text",
             "keys": ["Ctrl", "U"],
-            "description": "밑줄 Underline"
+            "description": "밑줄"
         },
         {
             "category": "Text",
@@ -443,42 +443,42 @@
         {
             "category": "Object",
             "keys": ["Ctrl", "Shift", "H"],
-            "description": "숨기기/나타내기 Show/Hide Selection"
+            "description": "숨기기/나타내기"
         },
         {
             "category": "Object",
             "keys": ["Ctrl", "Shift", "L"],
-            "description": "잠금/잠금해제 Lock/Unlock Selection"
+            "description": "잠금/잠금해제"
         },
         {
             "category": "Object",
             "keys": ["Ctrl", "Alt", "Shift", "L"],
-            "description": "전체 잠금 해제 Unlock All Object"
+            "description": "전체 잠금 해제"
         },
         {
             "category": "Object",
             "keys": ["Ctrl", "E"],
-            "description": "병합 Flatten Selection"
+            "description": "병합"
         },
         {
             "category": "Object",
             "keys": ["Ctrl", "Shift", "O"],
-            "description": "윤곽선으로 변경 Outline Stroke"
+            "description": "윤곽선으로 변경"
         },
         {
             "category": "Object",
             "keys": ["Alt", "double-click"],
-            "description": "이미지 자르기 Crop Image"
+            "description": "이미지 자르기"
         },
         {
             "category": "Components",
             "keys": ["Ctrl", "Alt", "K"],
-            "description": "컴포넌트 만들기 Create Component"
+            "description": "컴포넌트 만들기"
         },
         {
             "category": "Components",
             "keys": ["Ctrl", "Alt", "B"],
-            "description": "인스턴스 분리하기 Detach Instance"
+            "description": "인스턴스 분리하기"
         },
         {
             "category": "Components",
@@ -488,7 +488,7 @@
         {
             "category": "Misc",
             "keys": ["Ctrl", "Shift", "/"],
-            "description": "단축키 보기 Keyboard Shortcuts"
+            "description": "단축키 보기"
         },
         {
             "category": "View",

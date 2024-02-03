@@ -67,7 +67,7 @@
             "category": "이동 단축키",
             "keys": [
                 "Alt",
-                "PageUp"
+                "Page Up"
             ],
             "description": "한화면 왼쪽으로 이동"
         },
@@ -75,7 +75,7 @@
             "category": "이동 단축키",
             "keys": [
                 "Alt",
-                "PageDown"
+                "Page Down"
             ],
             "description": "한화면 오른쪽으로 이동"
         },
@@ -91,7 +91,7 @@
             "category": "이동 단축키",
             "keys": [
                 "Ctrl",
-                "PageDown"
+                "Page Down"
             ],
             "description": "다음 워크 시트로"
         },
@@ -99,7 +99,7 @@
             "category": "이동 단축키",
             "keys": [
                 "Ctrl",
-                "PageUp"
+                "Page Up"
             ],
             "description": "이전 워크시트로"
         },
@@ -123,7 +123,7 @@
             "category": "이동 단축키",
             "keys": [
                 "Ctrl",
-                "Spacebar"
+                "Space"
             ],
             "description": "열 전체 선택"
         },
@@ -391,7 +391,7 @@
             "category": "셀 선택",
             "keys": [
                 "Shift",
-                "Pageup"
+                "Page Up"
             ],
             "description": "셀 위로 한 페이지까지 선택"
         },
@@ -399,7 +399,7 @@
             "category": "셀 선택",
             "keys": [
                 "Shift",
-                "Pagedown"
+                "Page Down"
             ],
             "description": "셀 아래로 한 페이지까지 선택"
         },
@@ -435,7 +435,7 @@
             "keys": [
                 "Ctrl",
                 "Shift",
-                "SpaceBar"
+                "Space"
             ],
             "description": "아래쪽 데이터 모두선택"
         },
@@ -530,16 +530,16 @@
         {
             "category": "글자 편집",
             "keys": [
-                "Ctrl ",
-                " O"
+                "Ctrl",
+                "O"
             ],
             "description": "통합문서 열기"
         },
         {
             "category": "글자 편집",
             "keys": [
-                "Ctrl ",
-                " P"
+                "Ctrl",
+                "P"
             ],
             "description": "인쇄"
         },
@@ -554,7 +554,7 @@
         {
             "category": "글자 편집",
             "keys": [
-                "Ctrl ",
+                "Ctrl",
                 "V"
             ],
             "description": "붙여넣기"
