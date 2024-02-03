@@ -40,11 +40,12 @@ EMAIL_HOST_PASSWORD = os.environ.get("PASSWORD")
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 # DEBUG = os.environ.get("DEBUG", "0")
 
 
 ALLOWED_HOSTS = ["*"]
+
 
 
 # Application definition
