@@ -9,8 +9,4 @@ def validate_password(password):
         return Response(
             {"error": "비밀번호는 6자리 이상이어야 합니다."}, status=status.HTTP_400_BAD_REQUEST
         )
-    if not re.search(r"[a-zA-Z]", password):
-        return Response(
-            {"error": "비밀번호는 하나 이상의 영문이 포함되어야 합니다."}, status=status.HTTP_400_BAD_REQUEST
-        )
     return password

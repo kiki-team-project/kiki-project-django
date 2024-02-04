@@ -26,9 +26,14 @@ class User(AbstractUser):
         KAKAO = ("kakao", "카카오")
         GOOGLE = ("google", "구글")
         NAVER = ("naver", "네이버")
-    username =models.EmailField(
+    username =models.CharField(
         max_length=255,
         unique=True,
+    )
+    email = models.EmailField(
+        max_length=255,
+        blank=True,
+        null=True,
     )
     nickname = models.CharField(
         max_length=10,

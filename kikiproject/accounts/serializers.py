@@ -1,4 +1,6 @@
 from django.core.mail import send_mail
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -59,6 +61,15 @@ class UserSerializer(ModelSerializer):
         if User.objects.filter(username=username).exists():
             raise serializers.ValidationError("user already exists")
         return attrs
+    
+    def validate_username(self, value):
+        try:
+            # 이메일 형식인지 확인
+            validate_email(value)
+        except ValidationError:
+            raise serializers.ValidationError("Enter a valid email address.")
+
+        return value
 
     # def get_is_host(self, user):
     #     request = self.context["request"]
