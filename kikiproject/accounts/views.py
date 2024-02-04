@@ -47,6 +47,7 @@ class UserView(APIView):
         password = request.data.get("password")
         password2 = request.data.get("second_password")
         nickname = request.data.get("nickname")
+        pattern = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         if not password or not password2:
             return Response(
                 {"error": "비밀번호 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
@@ -62,6 +63,10 @@ class UserView(APIView):
         if password != password2:
             return Response(
                 {"error": "비밀번호가 일치하지 않습니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if not re.match(pattern, username):
+            return Response(
+                {"error" : "올바른 이메일 형식이 아닙니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
         if User.objects.filter(username=username).exists():
             return Response(
@@ -86,10 +91,8 @@ class UserView(APIView):
             context={"request": request},
         )
         if serializer.is_valid():
-            newuser = serializer.save()
-            response = Response({"message": "register success"},status=status.HTTP_201_CREATED)
-            if newuser:
-                return response
+            serializer.save()
+            return Response({"message": "register success"},status=status.HTTP_201_CREATED)
         else:
             return Response(
                 serializer.errors,
