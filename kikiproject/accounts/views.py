@@ -158,6 +158,16 @@ class UserResetPasswordPermitView(APIView):
 class KakaoLoginView(APIView):
     '''
     카카오 소셜로그인 함수
+    Post 함수 원리 
+    1. 클라이언트가 전송한 요청 데이터에서 "code" 필드를 가져옵니다. 이 코드는 카카오 OAuth 인증 시스템에서 발급한 인증 코드입니다.
+    2. 카카오 토큰을 얻기 위한 API 엔드포인트 URL을 지정합니다.
+    3. data = { ... }: 카카오 API로 전송할 데이터를 구성합니다. 여기에는 인증 코드와 함께 클라이언트 아이디 및 리디렉션 URL이 포함됩니다.
+    4. kakao_token = requests.post(...): 구성된 데이터를 사용하여 카카오에 인증 요청을 보냅니다. 이를 통해 액세스 토큰을 얻습니다.
+    5. access_token = kakao_token.json().get("access_token"): 받은 응답에서 액세스 토큰을 추출합니다.
+    6. user_data = requests.get(...): 액세스 토큰을 사용하여 카카오 사용자 정보를 얻기 위해 요청을 보냅니다.
+    7. user_data = user_data.json(): 받은 사용자 정보를 JSON 형식으로 변환합니다.
+    8. data = { ... }: 카카오에서 받은 사용자 정보를 가공하여 저장할 데이터를 구성합니다.
+    9. return social_login_validate(**data): 위에서 구성한 데이터를 이용하여 social_login_validate 함수를 호출하고, 그 결과를 반환합니다.
     '''
     def get(self, request):
         return Response(settings.KK_API_KEY, status=status.HTTP_200_OK)
@@ -191,7 +201,7 @@ class KakaoLoginView(APIView):
             data = {
                 "photo": user_data.get("properties").get("profile_image"),
                 "email": user_data.get("kakao_account").get("email"),
-                "username": user_data.get("properties").get("nickname"),
+                "nickname": user_data.get("properties").get("nickname"),
                 "login_type": "kakao",
                 "is_active": True,
             }
@@ -214,11 +224,6 @@ def social_login_validate(**kwargs):
         )
     try:
         user = User.objects.get(email=email)
-        # if user.is_active == False:
-        #     return Response(
-        #         {"error": "해당 유저는 휴면계정입니다!"},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
         if login_type == user.login_type:
             refresh = RefreshToken.for_user(user)
             access_token = serializers.CustomTokenObtainPairSerializer.get_token(user)
@@ -237,21 +242,6 @@ def social_login_validate(**kwargs):
         new_user.save()
         refresh = RefreshToken.for_user(new_user)
         access_token = serializers.CustomTokenObtainPairSerializer.get_token(new_user)
-        # html = render_to_string(
-        #     "users/email_welcome.html",
-        #     {
-        #         "front_base_url": settings.FRONT_BASE_URL,
-        #         "user": new_user,
-        #     },
-        # )
-        # to_email = new_user.email
-        # send_mail(
-        #     "안녕하세요 키키입니다. 회원가입을 축하드립니다!",
-        #     "_",
-        #     settings.DEFAULT_FROM_MAIL,
-        #     [to_email],
-        #     html_message=html,
-        # )
         return Response(
             {"refresh": str(refresh), "access": str(access_token.access_token)},
             status=status.HTTP_200_OK,
