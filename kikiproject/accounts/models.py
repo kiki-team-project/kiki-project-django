@@ -20,7 +20,7 @@ from .validators import validate_password
         is_admin (bool): 관리자 여부
         is_host(bool): 본인 여부
     """
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     class LoginTypeChoices(models.TextChoices):
         NORMAL = ("normal", "일반")
         KAKAO = ("kakao", "카카오")

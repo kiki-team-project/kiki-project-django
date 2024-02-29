@@ -12,7 +12,7 @@ from rest_framework.serializers import (
     ModelSerializer,
     SerializerMethodField,
 )
-from .models import User
+from .models import CustomUser
 from .emails import account_activation_token
 
 class UserSerializer(ModelSerializer):
@@ -20,7 +20,7 @@ class UserSerializer(ModelSerializer):
     # total_bookmark_articles = SerializerMethodField()
 
     class Meta:
-        model = User
+        model = CustomUser
         exclude = (
             "groups",
             "user_permissions",
@@ -33,7 +33,7 @@ class UserSerializer(ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password")
-        user = User(**validated_data)
+        user = CustomUser(**validated_data)
         user.set_password(password)
         user.save()
         print(password)
@@ -59,7 +59,7 @@ class UserSerializer(ModelSerializer):
     
     def validate(self, attrs): # 중복 체크
         username = attrs['username']
-        if User.objects.filter(username=username).exists():
+        if CustomUser.objects.filter(username=username).exists():
             raise serializers.ValidationError("user already exists")
         return attrs
     
@@ -78,7 +78,7 @@ class PublicUserSerializer(ModelSerializer):
     # total_bookmark_articles = SerializerMethodField()
 
     class Meta:
-        model = User
+        model = CustomUser
         exclude = (
             "groups",
             "user_permissions",
@@ -90,7 +90,7 @@ class UserDetailSerializer(ModelSerializer):
     # is_host = SerializerMethodField()
 
     class Meta:
-        model = User
+        model = CustomUser
         exclude = (
             "groups",
             "user_permissions",
@@ -119,5 +119,5 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class UserProfilePhotoUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['photo']

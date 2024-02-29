@@ -26,7 +26,7 @@ from accounts.serializers import (
     UserProfilePhotoUpdateSerializer
 )
 from accounts import serializers
-from accounts.models import User
+from accounts.models import CustomUser
 from accounts.validators import validate_password
 from accounts.emails import account_activation_token
 
@@ -39,7 +39,7 @@ class UserView(APIView):
     '''
 
     def get(self, request):
-        user = User.objects.all()
+        user = CustomUser.objects.all()
         serializer = UserSerializer(user, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -69,11 +69,11 @@ class UserView(APIView):
             return Response(
                 {"error" : "올바른 이메일 형식이 아닙니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if User.objects.filter(username=username).exists():
+        if CustomUser.objects.filter(username=username).exists():
             return Response(
                 {"error": "해당 이메일을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
-        if User.objects.filter(nickname=nickname).exists():
+        if CustomUser.objects.filter(nickname=nickname).exists():
             return Response(
                 {"error": "해당 닉네임을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -106,9 +106,9 @@ class UserSignUpPermitView(APIView):
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
+            user = CustomUser.objects.get(pk=uid)
             if account_activation_token.check_token(user, token):
-                User.objects.filter(pk=uid).update(is_active=True)
+                CustomUser.objects.filter(pk=uid).update(is_active=True)
 
                 html = render_to_string(
                     "users/email_welcome.html",
@@ -146,7 +146,7 @@ class UserResetPasswordPermitView(APIView):
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
+            user = CustomUser.objects.get(pk=uid)
             if account_activation_token.check_token(user, token):
                 return redirect(
                     f"{settings.FRONT_BASE_URL}/users/password_change.html?uid={uid}&uidb64={uidb64}&token={token}"
@@ -283,7 +283,7 @@ def social_login_validate(**kwargs):
             {"error": "해당 계정에 email정보가 없습니다."}, status=status.HTTP_400_BAD_REQUEST
         )
     try:
-        user = User.objects.get(username=username)
+        user = CustomUser.objects.get(username=username)
         if login_type == user.login_type:
             refresh = RefreshToken.for_user(user)
             access_token = serializers.CustomTokenObtainPairSerializer.get_token(user)
@@ -296,8 +296,8 @@ def social_login_validate(**kwargs):
                 {"error": "같은 이메일로 이미 가입된 계정이 있습니다!"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-    except User.DoesNotExist:
-        new_user = User.objects.create(**data)
+    except CustomUser.DoesNotExist:
+        new_user = CustomUser.objects.create(**data)
         new_user.set_unusable_password()
         new_user.save()
         refresh = RefreshToken.for_user(new_user)
@@ -320,7 +320,7 @@ class ResetPasswordView(APIView):
     def post(self, request):
         try:
             user_email = request.data.get("email")
-            user = User.objects.get(username=user_email)
+            user = CustomUser.objects.get(username=user_email)
             if user:
                 if user.login_type == "normal":
                     html = render_to_string(
@@ -350,7 +350,7 @@ class ResetPasswordView(APIView):
                         {"error": "해당 이메일은 소셜로그인 이메일입니다!"},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-        except User.DoesNotExist:
+        except CustomUser.DoesNotExist:
             return Response(
                 {"error": "해당 이메일에 일치하는 사용자가 없습니다!"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -362,8 +362,8 @@ class ResetPasswordView(APIView):
         new_first_password = request.data.get("new_first_password")
         new_second_password = request.data.get("new_second_password")
         try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
             return Response(
                 {"error": "일치하는 유저가 존재하지 않습니다!"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -452,7 +452,7 @@ class UserProfilePhotoUpdateAPIView(generics.UpdateAPIView):
     """
     유저 프로필 사진만 수정
     """
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserProfilePhotoUpdateSerializer
     permission_classes = [IsAuthenticated]
 
@@ -472,7 +472,7 @@ class UserDetailView(APIView):
     def get(self, request, user_id):
         # """유저 프로필 조회 주석 추가 예정"""
 
-        user = get_object_or_404(User, id=user_id)
+        user = get_object_or_404(CustomUser, id=user_id)
         if request.user.id == user_id:
             serializer = UserSerializer(
                 user,
@@ -487,7 +487,7 @@ class UserDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
+        user = get_object_or_404(CustomUser, id=user_id)
         if request.user.id == user_id:
             serializer = UserDetailSerializer(
                 user,
@@ -505,7 +505,7 @@ class UserDetailView(APIView):
 
     def patch(self, request, user_id):
         """유저 삭제"""
-        user = get_object_or_404(User, id=user_id)
+        user = get_object_or_404(CustomUser, id=user_id)
         if user.login_type == "normal":
             if request.user.id == user_id and user.check_password(
                 request.data.get("password")
