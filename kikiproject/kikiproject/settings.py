@@ -35,14 +35,14 @@ def get_secret(setting):
 
 SECRET_KEY = get_secret("SECRET_KEY")
 
-KK_API_KEY = os.environ.get("KK_API_KEY")
-GC_API_KEY = os.environ.get("GC_API_KEY")
-GC_ID = os.environ.get("GC_ID")
-GC_SECRET = os.environ.get("GC_SECRET")
-NC_ID = os.environ.get("NC_ID")
-NC_SECRET = os.environ.get("NC_SECRET")
+KK_API_KEY = get_secret("KK_API_KEY")
+GC_API_KEY = get_secret("GC_API_KEY")
+GC_ID = get_secret("GC_ID")
+GC_SECRET = get_secret("GC_SECRET")
+NC_ID = get_secret("NC_ID")
+# NC_SECRET = get_secret("NC_SECRET")
 
-EMAIL_HOST_USER = os.environ.get("EMAIL")
+EMAIL_HOST_USER = get_secret("EMAIL")
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER
 
 BACKEND_BASE_URL = "https://kikiki.store/"
