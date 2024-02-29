@@ -34,11 +34,19 @@ def get_secret(setting):
         raise ImproperlyConfigured(error_msg)
 
 SECRET_KEY = get_secret("SECRET_KEY")
+
 KK_API_KEY = os.environ.get("KK_API_KEY")
+GC_API_KEY = os.environ.get("GC_API_KEY")
+GC_ID = os.environ.get("GC_ID")
+GC_SECRET = os.environ.get("GC_SECRET")
+NC_ID = os.environ.get("NC_ID")
+NC_SECRET = os.environ.get("NC_SECRET")
+
 EMAIL_HOST_USER = os.environ.get("EMAIL")
-EMAIL_HOST_PASSWORD = os.environ.get("PASSWORD")
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER
 
+BACKEND_BASE_URL = "https://kikiki.store/"
+FRONT_BASE_URL = "https://keykey.vercel.app/"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 # DEBUG = os.environ.get("DEBUG", "0")

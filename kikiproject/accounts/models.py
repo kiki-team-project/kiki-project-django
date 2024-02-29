@@ -41,18 +41,15 @@ class User(AbstractUser):
         default='Default nickname',
     )
     password = models.CharField(max_length=256, validators=[validate_password])
-    photo = models.URLField(
-        blank=True,
-        null=True,
-    )
-    prosearch = models.CharField(
-        max_length=400,
-        blank=True,
-    )
-    keysearch = models.CharField(
-        max_length=400,
-        blank=True,
-    )
+    photo = models.ImageField(upload_to='user_photos/', null=True, blank=True)
+    # prosearch = models.CharField(
+    #     max_length=400,
+    #     blank=True,
+    # )
+    # keysearch = models.CharField(
+    #     max_length=400,
+    #     blank=True,
+    # )
     updated_at = models.DateTimeField(
         auto_now=True,
     )

@@ -7,7 +7,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.shortcuts import redirect
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -23,6 +23,7 @@ from accounts.serializers import (
     PublicUserSerializer,
     UserDetailSerializer,
     CustomTokenObtainPairSerializer,
+    UserProfilePhotoUpdateSerializer
 )
 from accounts import serializers
 from accounts.models import User
@@ -180,7 +181,7 @@ class KakaoLoginView(APIView):
             data = {
                 "grant_type": "authorization_code",
                 "client_id": settings.KK_API_KEY,
-                "redirect_uri": f"{settings.FRONT_BASE_URL}/index.html", # 리다이렉트 링크는 배포 링크에 맞춰 수정
+                "redirect_uri": "https://keykey.vercel.app/auth", # 리다이렉트 링크는 배포 링크에 맞춰 수정
                 "code": auth_code,
             }
             kakao_token = requests.post(
@@ -200,9 +201,68 @@ class KakaoLoginView(APIView):
             # data 파라미터는 프론트엔드에서 설정
             data = {
                 "photo": user_data.get("properties").get("profile_image"),
-                "email": user_data.get("kakao_account").get("email"),
+                "username": user_data.get("kakao_account").get("email"),
                 "nickname": user_data.get("properties").get("nickname"),
                 "login_type": "kakao",
+                "is_active": True,
+            }
+            return social_login_validate(**data)
+        except Exception:
+            return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GoogleLoginView(APIView):
+    def get(self, request):
+        return Response(settings.GC_ID, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            # with transaction.atomic():
+            access_token = request.data["access_token"]
+            user_data = requests.get(
+                "https://www.googleapis.com/oauth2/v2/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            user_data = user_data.json()
+            data = {
+                "username": user_data.get("email"),
+                "nickname": user_data.get("name"),
+                "photo": user_data.get("picture"),
+                "login_type": "google",
+                "is_active": True,
+            }
+            return social_login_validate(**data)
+        except Exception:
+            return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NaverLoginView(APIView):
+    def get(self, request):
+        return Response(settings.NC_ID, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            # with transaction.atomic():
+            code = request.data.get("naver_code")
+            state = request.data.get("state")
+            access_token = requests.post(
+                f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&code={code}&client_id={settings.NC_ID}&client_secret={settings.NC_SECRET}&state={state}",
+                headers={"Accept": "application/json"},
+            )
+            access_token = access_token.json().get("access_token")
+            user_data = requests.get(
+                "https://openapi.naver.com/v1/nid/me",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/json",
+                },
+            )
+            user_data = user_data.json().get("response")
+            data = {
+                "photo": user_data.get("profile_image"),
+                "username": user_data.get("email"),
+                "nickname": user_data.get("nickname"),
+                "login_type": "naver",
                 "is_active": True,
             }
             return social_login_validate(**data)
@@ -216,14 +276,14 @@ def social_login_validate(**kwargs):
     DB에 계정 없을 시 자동으로 회원가입 절차 밟음
     """
     data = {k: v for k, v in kwargs.items()}
-    email = data.get("email")
+    username = data.get("username")
     login_type = data.get("login_type")
-    if not email:
+    if not username:
         return Response(
             {"error": "해당 계정에 email정보가 없습니다."}, status=status.HTTP_400_BAD_REQUEST
         )
     try:
-        user = User.objects.get(email=email)
+        user = User.objects.get(username=username)
         if login_type == user.login_type:
             refresh = RefreshToken.for_user(user)
             access_token = serializers.CustomTokenObtainPairSerializer.get_token(user)
@@ -256,14 +316,15 @@ class ResetPasswordView(APIView):
     Put : 새 비밀번호로 수정
     """
 
+
     def post(self, request):
         try:
             user_email = request.data.get("email")
-            user = User.objects.get(email=user_email)
+            user = User.objects.get(username=user_email)
             if user:
-                if user.login_type == "normal" or user.is_active == False:
+                if user.login_type == "normal":
                     html = render_to_string(
-                        "users/email_password_reset.html",
+                        "accounts/email_password_reset.html",
                         {
                             "backend_base_url": settings.BACKEND_BASE_URL,
                             "uidb64": urlsafe_base64_encode(force_bytes(user.id))
@@ -338,7 +399,10 @@ class ResetPasswordView(APIView):
 
 class ChangePasswordView(APIView):
     """
-    노말 로그인 회원만 비번 바꾸기. 주석추가예정
+    노말 로그인 회원만 비번 바꾸기
+    old_password : 구 비밀번호
+    new_password : 새 비밀번호
+    new_password2 : 새 비밀번호 확인용
     """
 
     permission_classes = [IsAuthenticated]
@@ -384,11 +448,23 @@ class ChangePasswordView(APIView):
             )
 
 
+class UserProfilePhotoUpdateAPIView(generics.UpdateAPIView):
+    """
+    유저 프로필 사진만 수정
+    """
+    queryset = User.objects.all()
+    serializer_class = UserProfilePhotoUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
 class UserDetailView(APIView):
     '''
     마이페이지 관련 클래스
     get : 유저 프로필 조회
-    put : 유저 프로필(닉네임) 수정
+    put : 유저 프로필(닉네임, 사진) 수정
     patch : 유저 삭제
     '''
     permission_classes = [IsAuthenticated]
@@ -428,7 +504,7 @@ class UserDetailView(APIView):
             raise PermissionDenied
 
     def patch(self, request, user_id):
-        """유저 삭제, 주석 추가 예정"""
+        """유저 삭제"""
         user = get_object_or_404(User, id=user_id)
         if user.login_type == "normal":
             if request.user.id == user_id and user.check_password(
@@ -465,68 +541,3 @@ class LogoutView(APIView):
             return Response({'message': '성공적으로 로그아웃되었습니다.'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': '유효하지 않거나, 만기된 토큰입니다.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-    
-class ProSearchView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, account_id):
-        user = get_object_or_404(User, id=account_id)
-        programs = user.prosearch.split(", ")
-        if not user.is_authenticated:
-            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
-        if programs == [""]:
-            return Response({"message" : "아직 즐겨찾기한 프로그램이 없습니다."}, status=status.HTTP_200_OK)
-        else:
-            answer = [program for program in programs if program != ""]
-            return Response(answer, status=status.HTTP_200_OK)
-
-    def post(self, request, account_id):
-        programsearch = request.data.get("programsearch")
-        user = get_object_or_404(User, id=account_id)
-        programs = user.prosearch.split(", ")
-        if not user.is_authenticated:
-            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
-        if programsearch not in programs:
-            programs.append(programsearch)
-            user.prosearch = ", ".join(programs)
-            user.save()
-            return Response({"message": "즐겨찾기에 추가되었습니다."}, status=status.HTTP_200_OK)
-        else:
-            programs.remove(programsearch)
-            user.prosearch = ", ".join(programs)
-            user.save()
-            return Response({"message": "즐겨찾기에서 삭제되었습니다."}, status=status.HTTP_200_OK)
-
-class KeySearchView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, account_id):
-        user = get_object_or_404(User, id=account_id)
-        keys = user.keysearch.split(", ")
-        if not user.is_authenticated:
-            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
-        if keys == [""]:
-            return Response({"message" : "아직 즐겨찾기한 단축키가 없습니다."}, status=status.HTTP_200_OK)
-        else:
-            answer = [key for key in keys if key != ""]
-            return Response(answer, status=status.HTTP_200_OK)
-        
-    def post(self, request, account_id):
-        kkeysearch = request.data.get("kkeysearch")
-        user = get_object_or_404(User, id=account_id)
-        keys = user.keysearch.split(", ")
-        print(keys)
-
-        if not user.is_authenticated:
-            return Response({"error" : "로그인한 후 즐겨찾기 기능을 사용하실 수 있습니다."}, status=status.HTTP_404_NOT_FOUND)
-        if kkeysearch not in keys:
-            keys.append(kkeysearch)
-            user.keysearch = ", ".join(keys)
-            user.save()
-            return Response({"message": "즐겨찾기에 추가되었습니다."}, status=status.HTTP_200_OK)
-        else:
-            keys.remove(kkeysearch)
-            user.keysearch = ", ".join(keys)
-            user.save()
-            return Response({"message": "즐겨찾기에서 삭제되었습니다."}, status=status.HTTP_200_OK)

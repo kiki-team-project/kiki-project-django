@@ -72,28 +72,6 @@ class UserSerializer(ModelSerializer):
 
         return value
 
-    # def get_is_host(self, user):
-    #     request = self.context["request"]
-
-    #     return request.user.id == user.id
-
-    # def get_total_bookmark_articles(self, user):
-    #     return user.bookmarks.count()
-
-
-# class ChangePasswordSerializer(serializers.ModelSerializer):
-#     old_password = serializers.CharField(required=True)
-#     new_password = serializers.CharField(required=True)
-#     class Meta:
-#         model = User
-#         fields = ('old_password', 'new_password')
-#         extra_kwargs = {'new_password': {'write_only': True, 'required': True},
-#                         'old_password': {'write_only': True, 'required': True}}
-
-#     def validate_new_password(self, value):
-#         validate_password(value)
-#         return value
-
 
 class PublicUserSerializer(ModelSerializer):
     # is_host = SerializerMethodField()
@@ -106,18 +84,10 @@ class PublicUserSerializer(ModelSerializer):
             "user_permissions",
             "password",
         )
-
-    # def get_is_host(self, user):
-    #     request = self.context["request"]
-    #     return request.user.id == user.id
-
-    # def get_total_bookmark_articles(self, user):
-    #     return user.bookmarks.count()
     
 
 class UserDetailSerializer(ModelSerializer):
     # is_host = SerializerMethodField()
-    # total_bookmark_articles = SerializerMethodField()
 
     class Meta:
         model = User
@@ -145,3 +115,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["login_type"] = user.login_type
         token["photo"] = user.photo
         return token
+    
+
+class UserProfilePhotoUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['photo']
