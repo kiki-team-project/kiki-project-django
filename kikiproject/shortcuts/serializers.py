@@ -6,7 +6,7 @@ class ProgramListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProgramList
-        fields = ['platform', 'image_url']
+        fields = ['id', 'platform', 'image_url', 'bookmark']
 
     def get_image_url(self, obj):
         request = self.context.get('request')
