@@ -117,7 +117,6 @@ class BookmarkShortcut(APIView):
 
             userinfo.bookmark_shortcut = " ".join(infolist)
             userinfo.save()
-            print("info :", infolist)
             # Retrieve top 5 shortcuts based on bookmark within the same platform
             # top_shortcuts = ShortcutKey.objects.filter(platform=platform).order_by('-bookmark')[:5]
             # serializer = ShortcutKeySerializer(top_shortcuts, many=True)
@@ -169,7 +168,6 @@ class BookmarkShortcut(APIView):
 
             userinfo.bookmark_shortcut = " ".join(infolist)
             userinfo.save()
-            print("info :", infolist)
             # 삭제 후 성공 응답 반환
             return Response({"message": "success", "code" : 0}, status=status.HTTP_200_OK)
         except Exception as e:
@@ -203,7 +201,6 @@ class BookmarkProgram(APIView):
 
             userinfo.bookmark_program = " ".join(infolist)
             userinfo.save()
-            print("info :", infolist)
             return Response({"message": "success", "code" : 0}, status=status.HTTP_200_OK)
         except Exception as e:
             # Log the exception if needed
@@ -218,7 +215,6 @@ class BookmarkProgram(APIView):
             infolist = userinfo.bookmark_program.split()
 
             shortcuts = ProgramList.objects.filter(id__in=infolist)
-            print(shortcuts)
             # 직렬화
             serializer = ProgramListSerializer(shortcuts, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -251,7 +247,6 @@ class BookmarkProgram(APIView):
                     
             userinfo.bookmark_program = " ".join(infolist)
             userinfo.save()
-            print("info :", infolist)
             # 삭제 후 성공 응답 반환
             return Response({"message": "success", "code" : 0}, status=status.HTTP_200_OK)
         except Exception as e:
