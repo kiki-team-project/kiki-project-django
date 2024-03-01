@@ -7,7 +7,7 @@ from .serializers import ShortcutKeySerializer, ProgramListSerializer
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from accounts.models import User
+from accounts.models import CustomUser
 
 class ShortcutKeyList(APIView):
     def get(self, request, format=None):
@@ -103,7 +103,7 @@ class BookmarkShortcut(APIView):
                 return Response({"error": "Platform and ID must be provided."}, status=status.HTTP_400_BAD_REQUEST)
             
             user = request.user
-            userinfo = User.objects.filter(username=user).first()
+            userinfo = CustomUser.objects.filter(username=user).first()
             infolist = userinfo.bookmark_shortcut.split()
             
             if shortcut_id not in infolist:
@@ -131,7 +131,7 @@ class BookmarkShortcut(APIView):
         try:
             
             user = request.user
-            userinfo = User.objects.filter(username=user).first()
+            userinfo = CustomUser.objects.filter(username=user).first()
             infolist = userinfo.bookmark_shortcut.split()
 
             userinfo.bookmark_shortcut = " ".join(infolist)
@@ -155,7 +155,7 @@ class BookmarkShortcut(APIView):
                 return Response({"error": "Platform and ID must be provided."}, status=status.HTTP_400_BAD_REQUEST)
 
             user = request.user
-            userinfo = User.objects.filter(username=user).first()
+            userinfo = CustomUser.objects.filter(username=user).first()
             infolist = []
             for info in userinfo.bookmark_shortcut.split():
                 if info != shortcut_id:
@@ -190,7 +190,7 @@ class BookmarkProgram(APIView):
                 return Response({"error": "Platform and ID must be provided."}, status=status.HTTP_400_BAD_REQUEST)
 
             user = request.user
-            userinfo = User.objects.filter(username=user).first()
+            userinfo = CustomUser.objects.filter(username=user).first()
             infolist = userinfo.bookmark_program.split()
             
             if program_id not in infolist:
@@ -214,7 +214,7 @@ class BookmarkProgram(APIView):
         try:
             
             user = request.user
-            userinfo = User.objects.filter(username=user).first()
+            userinfo = CustomUser.objects.filter(username=user).first()
             infolist = userinfo.bookmark_program.split()
 
             shortcuts = ProgramList.objects.filter(id__in=infolist)
@@ -236,7 +236,7 @@ class BookmarkProgram(APIView):
                 return Response({"error": "Platform and ID must be provided."}, status=status.HTTP_400_BAD_REQUEST)
 
             user = request.user
-            userinfo = User.objects.filter(username=user).first()
+            userinfo = CustomUser.objects.filter(username=user).first()
             infolist = []
             for info in userinfo.bookmark_program.split():
                 

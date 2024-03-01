@@ -111,9 +111,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token["id"] = user.id
         token["username"] = user.username
-        token["nickname"] = user.nickname
         token["login_type"] = user.login_type
-        token["photo"] = user.photo
         return token
     
 
