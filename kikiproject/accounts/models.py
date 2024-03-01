@@ -65,6 +65,8 @@ class User(AbstractUser):
     is_admin = models.BooleanField(
         default=False,
     )
+    bookmark_program = models.TextField(blank=True)
+    bookmark_shortcut = models.TextField(blank=True)
     # is_host = models.BooleanField(
     #     default=False,
     # )

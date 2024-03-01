@@ -6,36 +6,64 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework_simplejwt.views import TokenObtainPairView
+from accounts.serializers import (
+    UserSerializer,
+    PublicUserSerializer,
+    UserDetailSerializer,
+    CustomTokenObtainPairSerializer,
+)
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from accounts.models import User
+
 
 class CustomPagination(PageNumberPagination):
     def get_paginated_response(self, data):
         return Response(data)
     
+    
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
     
     def create(self, request, *args, **kwargs):
+        
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-
-        # 사용자 정의 응답
-        return Response({
-            "message": "success",
-            "post": serializer.data
-        }, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response({
+                "message": "success",
+                "post": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        else:
+            # 유효성 검사 실패 시, 에러 메시지 로깅
+            print("Validation errors:", serializer.errors)
+            # 클라이언트에게 에러 메시지 반환
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # serializer.is_valid(raise_exception=True)
+        # #serializer.is_valid(raise_exception=True)
+        # print("serializer :", serializer)
+        # self.perform_create(serializer)
+        # # 사용자 정의 응답
+        # return Response({
+        #     "message": "success",
+        #     "post": serializer.data
+        # }, status=status.HTTP_201_CREATED)
         
     def get_queryset(self):
-        """
-        Optionally restricts the returned posts to a given category or platform,
-        by filtering against query parameters in the URL.
-        """
+
         queryset = Post.objects.all()
+        post_id = self.request.query_params.get('id', None)
         category = self.request.query_params.get('category', None)
         platform = self.request.query_params.get('platform', None)
 
+        if post_id is not None:
+            queryset = queryset.filter(id=post_id)
         if category is not None:
             queryset = queryset.filter(category=category)
         if platform is not None:
@@ -68,15 +96,46 @@ class PostViewSet(viewsets.ModelViewSet):
             "message": "success",
             "post": serializer.data
         }, status=status.HTTP_200_OK)
-        
-        
+
+
+class UserSpecificInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user_info = {
+            "id": user.id,
+            "username": user.username,
+            "nickname": user.nickname,
+            "photo": user.photo,
+            "login_type": user.login_type,
+        }
+        return Response({
+            "message": "success",
+            "user": user_info
+        }, status=status.HTTP_200_OK)
+# class MyPageViewSet(viewsets.ModelViewSet):
+#     queryset = Post.objects.all()
+#     serializer_class = PostSerializer
+#     pagination_class = CustomPagination
+    
+#     def get_queryset(self):
+
+#         queryset = Post.objects.all()
+#         token = self.request.query_params.get('token', None)
+
+#         if token is not None:
+#             queryset = queryset.filter(id=token)
+            
+#         return queryset
+    
+    
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     pagination_class = CustomPagination
     
     def create(self, request, *args, **kwargs):
-        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
