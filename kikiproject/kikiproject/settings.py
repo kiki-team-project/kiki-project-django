@@ -87,6 +87,14 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+        "https://keykey.vercel.app/",
+        "https://kikiki.store/",
+    ]
+CSRF_TRUSTED_ORIGINS = [
+        "https://keykey.vercel.app/",
+        "https://kikiki.store/",
+    ]
 
 ROOT_URLCONF = 'kikiproject.urls'
 
