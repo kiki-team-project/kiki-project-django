@@ -106,8 +106,6 @@ class UserSpecificInfoView(APIView):
         user_info = {
             "id": user.id,
             "username": user.username,
-            "nickname": user.nickname,
-            "photo": user.photo,
             "login_type": user.login_type,
         }
         return Response({
