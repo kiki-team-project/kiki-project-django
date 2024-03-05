@@ -40,7 +40,7 @@ GC_API_KEY = get_secret("GC_API_KEY")
 GC_ID = get_secret("GC_ID")
 GC_SECRET = get_secret("GC_SECRET")
 NC_ID = get_secret("NC_ID")
-# NC_SECRET = get_secret("NC_SECRET")
+NC_SECRET = get_secret("NC_SECRET")
 
 EMAIL_HOST_USER = get_secret("EMAIL")
 DEFAULT_FROM_MAIL = EMAIL_HOST_USER
@@ -87,6 +87,14 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOWED_ORIGINS = [
+#         "https://keykey.vercel.app/",
+#         "https://kikiki.store/",
+#     ]
+# CSRF_TRUSTED_ORIGINS = [
+#         "https://keykey.vercel.app/",
+#         "https://kikiki.store/",
+#     ]
 
 ROOT_URLCONF = 'kikiproject.urls'
 

@@ -199,14 +199,14 @@ class KakaoLoginView(APIView):
             )
             user_data = user_data.json()
             # data 파라미터는 프론트엔드에서 설정
-            data = {
+            login_data = {
                 "photo": user_data.get("properties").get("profile_image"),
-                "username": user_data.get("kakao_account").get("email"),
-                "nickname": user_data.get("properties").get("nickname"),
+                "username": user_data.get("kakao_account").get("account_email"),
+                "nickname": user_data.get("properties").get("profile_nickname"),
                 "login_type": "kakao",
                 "is_active": True,
             }
-            return social_login_validate(**data)
+            return social_login_validate(**login_data)
         except Exception:
             return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -224,14 +224,14 @@ class GoogleLoginView(APIView):
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             user_data = user_data.json()
-            data = {
+            login_data = {
                 "username": user_data.get("email"),
                 "nickname": user_data.get("name"),
                 "photo": user_data.get("picture"),
                 "login_type": "google",
                 "is_active": True,
             }
-            return social_login_validate(**data)
+            return social_login_validate(**login_data)
         except Exception:
             return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -258,14 +258,14 @@ class NaverLoginView(APIView):
                 },
             )
             user_data = user_data.json().get("response")
-            data = {
+            login_data = {
                 "photo": user_data.get("profile_image"),
                 "username": user_data.get("email"),
                 "nickname": user_data.get("nickname"),
                 "login_type": "naver",
                 "is_active": True,
             }
-            return social_login_validate(**data)
+            return social_login_validate(**login_data)
         except Exception:
             return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
 
