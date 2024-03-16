@@ -9,6 +9,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import CustomUser
 
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
 class ShortcutKeyList(APIView):
     def get(self, request, format=None):
         platform = request.query_params.get('platform', None)
@@ -252,8 +256,19 @@ class BookmarkProgram(APIView):
         except Exception as e:
             # Log the exception if needed
             return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)
-        
-        
+
+class CustomTokenRefreshView(TokenRefreshView):
+    serializer_class = TokenRefreshSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)   
 # class UserSpecificInfoView(APIView):
 #     permission_classes = [IsAuthenticated]
 
