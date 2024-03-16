@@ -164,6 +164,8 @@ class GoogleLoginView(APIView):
         try:
             # with transaction.atomic():
             access_token = request.data["access_token"]
+            if access_token is None:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             user_data = requests.get(
                 "https://www.googleapis.com/oauth2/v2/userinfo",
                 headers={"Authorization": f"Bearer {access_token}"},

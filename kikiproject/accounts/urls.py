@@ -11,9 +11,7 @@ urlpatterns = [
     ),
     path("api/token/",views.LoginView.as_view(),name="custom_token_obtain_pair",),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path("oauth/kakao/", views.KakaoLoginView.as_view(), name="kakao_login"),
     path("oauth/google/", views.GoogleLoginView.as_view(), name="google_login"),
-    path("oauth/naver/", views.NaverLoginView.as_view(), name="naver_login"),
     path("reset-password/", views.ResetPasswordView.as_view(), name="reset_password"),
     path(
         "reset/<str:uidb64>/<str:token>/",
