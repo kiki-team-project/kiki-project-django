@@ -26,6 +26,9 @@ class CustomUser(AbstractUser):
         KAKAO = ("kakao", "카카오")
         GOOGLE = ("google", "구글")
         NAVER = ("naver", "네이버")
+    class OSTypechoices(models.TextChoices):
+        WINDOWS = ("window", "윈도우")
+        MAC = ("mac", "맥")
     username =models.CharField(
         max_length=255,
         unique=True,
@@ -52,6 +55,11 @@ class CustomUser(AbstractUser):
         max_length=15,
         choices=LoginTypeChoices.choices,
         default="normal",
+    )
+    os_type = models.CharField(
+        max_length=15,
+        choices=OSTypechoices.choices,
+        default="windows",
     )
     is_active = models.BooleanField(
         default=True,
