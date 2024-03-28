@@ -156,6 +156,62 @@ class UserResetPasswordPermitView(APIView):
             return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class KakaoLoginView(APIView):
+    '''
+    카카오 소셜로그인 함수
+    Post 함수 원리 
+    1. 클라이언트가 전송한 요청 데이터에서 "code" 필드를 가져옵니다. 이 코드는 카카오 OAuth 인증 시스템에서 발급한 인증 코드입니다.
+    2. 카카오 토큰을 얻기 위한 API 엔드포인트 URL을 지정합니다.
+    3. data = { ... }: 카카오 API로 전송할 데이터를 구성합니다. 여기에는 인증 코드와 함께 클라이언트 아이디 및 리디렉션 URL이 포함됩니다.
+    4. kakao_token = requests.post(...): 구성된 데이터를 사용하여 카카오에 인증 요청을 보냅니다. 이를 통해 액세스 토큰을 얻습니다.
+    5. access_token = kakao_token.json().get("access_token"): 받은 응답에서 액세스 토큰을 추출합니다.
+    6. user_data = requests.get(...): 액세스 토큰을 사용하여 카카오 사용자 정보를 얻기 위해 요청을 보냅니다.
+    7. user_data = user_data.json(): 받은 사용자 정보를 JSON 형식으로 변환합니다.
+    8. data = { ... }: 카카오에서 받은 사용자 정보를 가공하여 저장할 데이터를 구성합니다.
+    9. return social_login_validate(**data): 위에서 구성한 데이터를 이용하여 social_login_validate 함수를 호출하고, 그 결과를 반환합니다.
+    '''
+    def get(self, request):
+        return Response(settings.KK_API_KEY, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        try:
+            # with transaction.atomic():
+            auth_code = request.data.get("code")
+            kakao_token_api = "https://kauth.kakao.com/oauth/token"
+            data = {
+                "grant_type": "authorization_code",
+                "client_id": settings.KK_API_KEY,
+                "redirect_uri": "https://keykey.vercel.app/auth", # 리다이렉트 링크는 배포 링크에 맞춰 수정
+                "code": auth_code,
+            }
+            kakao_token = requests.post(
+                kakao_token_api,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                data=data,
+            )
+            access_token = kakao_token.json().get("access_token")
+            user_data = requests.get(
+                "https://kapi.kakao.com/v2/user/me",
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+                },
+            )
+            user_data = user_data.json()
+            # data 파라미터는 프론트엔드에서 설정
+            login_data = {
+                "photo": user_data.get("properties").get("profile_image"),
+                "username": user_data.get("kakao_account").get("account_email"),
+                "nickname": user_data.get("properties").get("profile_nickname"),
+                "login_type": "kakao",
+                "is_active": True,
+            }
+            return social_login_validate(**login_data)
+        except Exception:
+            return Response({"error": "로그인 실패!"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class GoogleLoginView(APIView):
     def get(self, request):
         return Response(settings.GC_ID, status=status.HTTP_200_OK)
