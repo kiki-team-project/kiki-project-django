@@ -22,13 +22,22 @@ from .validators import validate_password
     """
 class CustomUser(AbstractUser):
     class LoginTypeChoices(models.TextChoices):
-        NORMAL = ("normal", "일반")
         KAKAO = ("kakao", "카카오")
         GOOGLE = ("google", "구글")
-        NAVER = ("naver", "네이버")
     class OSTypechoices(models.TextChoices):
-        WINDOWS = ("window", "윈도우")
+        WINDOWS = ("windows", "윈도우")
         MAC = ("mac", "맥")
+    class JobTypeChoices(models.TextChoices):
+        PRODUCER = ("producer", "기획자")
+        DESIGNER = ("designer", "디자이너")
+        DEVELOPER = ("developer", "개발자")
+        OTHERS = ("others", "기타")
+    class YearTypeChoices(models.TextChoices):
+        UNDERONE = ("underone", "1년 미만")
+        ONETOTHREE = ("onetothree", "1년~3년")
+        THREETOFIVE = ("threetofive", "3년~5년")
+        ABOVEFIVE = ("abovefive", "5년 이상")
+        STARTER = ("starter", "취준생")
     username =models.CharField(
         max_length=255,
         unique=True,
@@ -54,12 +63,20 @@ class CustomUser(AbstractUser):
     login_type = models.CharField(
         max_length=15,
         choices=LoginTypeChoices.choices,
-        default="normal",
     )
     os_type = models.CharField(
         max_length=15,
         choices=OSTypechoices.choices,
-        default="windows",
+    )
+    job_type = models.CharField(
+        max_length=15,
+        choices=JobTypeChoices.choices,
+        default="OTHERS",
+    )
+    year_type = models.CharField(
+        max_length=15,
+        choices=YearTypeChoices.choices,
+        default="STARTER"
     )
     is_active = models.BooleanField(
         default=True,
