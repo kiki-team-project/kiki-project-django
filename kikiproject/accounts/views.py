@@ -1,9 +1,10 @@
-import re
 import requests
 
 from django.conf import settings
 from rest_framework import status, generics
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import (
@@ -22,76 +23,6 @@ from accounts import serializers
 from accounts.models import CustomUser
 
 # Create your views here.
-class UserView(APIView):
-    '''
-    get : 유저 전체 보기
-    post : 회원가입 과정
-        조건 통과 시 UserSerializer 거쳐서 회원가입됨
-    '''
-
-    def get(self, request):
-        user = CustomUser.objects.all()
-        serializer = UserSerializer(user, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        password2 = request.data.get("second_password")
-        nickname = request.data.get("nickname")
-        pattern = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-        if not password or not password2:
-            return Response(
-                {"error": "비밀번호 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if not username:
-            return Response(
-                {"error": "이메일 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if not nickname:
-            return Response(
-                {"error": "닉네임 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if password != password2:
-            return Response(
-                {"error": "비밀번호가 일치하지 않습니다!"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if not re.match(pattern, username):
-            return Response(
-                {"error" : "올바른 이메일 형식이 아닙니다!"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if CustomUser.objects.filter(username=username).exists():
-            return Response(
-                {"error": "해당 이메일을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if CustomUser.objects.filter(nickname=nickname).exists():
-            return Response(
-                {"error": "해당 닉네임을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if len(password) < 6:
-            return Response(
-                {"error": "비밀번호는 6자리 이상이어야 합니다."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if len(nickname) > 10 or len(nickname) < 2:
-            return Response(
-                {"error": "닉네임은 2자리 이상, 10자리 이하입니다."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        serializer = UserSerializer(
-            data=request.data,
-            context={"request": request},
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "register success"},status=status.HTTP_201_CREATED)
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        
-
 class LoginView(TokenObtainPairView):
     '''
     TokenObtainPairView를 커스터마이징함
@@ -209,15 +140,35 @@ def social_login_validate(**kwargs):
                 status=status.HTTP_400_BAD_REQUEST,
             )
     except CustomUser.DoesNotExist:
-        new_user = CustomUser.objects.create(**data)
-        new_user.set_unusable_password()
-        new_user.save()
-        refresh = RefreshToken.for_user(new_user)
-        access_token = serializers.CustomTokenObtainPairSerializer.get_token(new_user)
         return Response(
-            {"refresh": str(refresh), "access": str(access_token.access_token)},
-            status=status.HTTP_200_OK,
+            {"message": "회원가입 창으로.", "data": data},
+            status=status.HTTP_404_NOT_FOUND,
         )
+        # new_user = CustomUser.objects.create(**data)
+        # new_user.set_unusable_password()
+        # new_user.is_active = False
+        # new_user.save()
+        # refresh = RefreshToken.for_user(new_user)
+        # access_token = serializers.CustomTokenObtainPairSerializer.get_token(new_user)
+        # return Response(
+        #     {"refresh": str(refresh), "access": str(access_token.access_token)},
+        #     status=status.HTTP_200_OK,
+        # )
+
+class UserView(GenericAPIView, UpdateModelMixin):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            # # JWT 토큰 생성
+            refresh = RefreshToken.for_user(user)
+            access_token = serializers.CustomTokenObtainPairSerializer.get_token(user)
+
+            return Response({"refresh": str(refresh), "access": str(access_token.access_token)}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfilePhotoUpdateAPIView(generics.UpdateAPIView):

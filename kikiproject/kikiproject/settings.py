@@ -123,7 +123,32 @@ REST_FRAMEWORK = {
 }
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+LOG_DIR = os.path.join(BASE_DIR, "log")
+LOG_FILE = "/debug.log"
+LOG_PATH = LOG_DIR + LOG_FILE
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': LOG_PATH,  # 로그 경로,  # 로그 파일 경로를 지정합니다.
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

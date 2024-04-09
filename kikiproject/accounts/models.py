@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from .validators import validate_password
 
 
 """유저 모델
@@ -49,10 +48,9 @@ class CustomUser(AbstractUser):
     )
     nickname = models.CharField(
         max_length=10,
-        unique=True,
         default='Default nickname',
     )
-    password = models.CharField(max_length=256, validators=[validate_password])
+    password = models.CharField(max_length=256)
     photo = models.ImageField(upload_to='user_photos/', default='user_photos/default.png')
     updated_at = models.DateTimeField(
         auto_now=True,
