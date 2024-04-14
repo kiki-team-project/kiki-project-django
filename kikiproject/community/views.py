@@ -1,22 +1,11 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound
 from .serializers import PostSerializer, CommentSerializer, CategorySerializer, PlatformSerializer
 from community.models import Post, Comment, CategoryList, PlatformList
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework_simplejwt.views import TokenObtainPairView
-from accounts.serializers import (
-    UserSerializer,
-    PublicUserSerializer,
-    UserDetailSerializer,
-    CustomTokenObtainPairSerializer,
-)
-from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from accounts.models import CustomUser
 
 
 class CustomPagination(PageNumberPagination):
