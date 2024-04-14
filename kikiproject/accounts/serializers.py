@@ -36,7 +36,6 @@ class UserSerializer(ModelSerializer):
         user = CustomUser(**validated_data)
         user.set_password(password)
         user.save()
-        print(password)
 
         # html = render_to_string(
         #     "accounts/email_register.html",
