@@ -23,6 +23,7 @@ class UserSerializer(ModelSerializer):
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)
+        user.set_unusable_password()
         return user
     
     def validate(self, attrs): # 중복 체크

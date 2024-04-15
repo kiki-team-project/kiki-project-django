@@ -187,7 +187,7 @@ class UserDetailView(APIView):
     '''
     사용자 관련 클래스
     put : 유저 프로필(닉네임, 사진) 수정
-    patch : 유저 삭제
+    delete : 유저 삭제
     '''
     permission_classes = [IsAuthenticated]
 
@@ -208,31 +208,17 @@ class UserDetailView(APIView):
         else:
             raise PermissionDenied
 
-    def patch(self, request, user_id):
+    def delete(self, request, user_id):
         """유저 삭제"""
         user = get_object_or_404(CustomUser, id=user_id)
-        if user.login_type == "normal":
-            if request.user.id == user_id and user.check_password(
-                request.data.get("password")
-            ):
-                user = request.user
-                user.is_active = False
-                user.save()
-                return Response({"message": "삭제되었습니다!"}, status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    {"error": "비밀번호가 일치하지 않습니다!"}, status=status.HTTP_403_FORBIDDEN
-                )
+        if request.user == user:
+            user = request.user
+            user.delete()
+            return Response({"message": "삭제되었습니다!"}, status=status.HTTP_200_OK)
         else:
-            if request.user.id == user_id:
-                user = request.user
-                user.is_active = False
-                user.save()
-                return Response({"message": "삭제되었습니다!"}, status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    {"error": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN
-                )
+            return Response(
+                {"error": "권한이 없습니다!"}, status=status.HTTP_403_FORBIDDEN
+            )
             
 
 class LogoutView(APIView):
