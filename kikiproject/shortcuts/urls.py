@@ -8,6 +8,7 @@ from .views import (
     ShortcutKeyFavoritesView,
     BookmarkProgram,
     BookmarkShortcut,
+    ClickHistoryAdd,
     CustomTokenRefreshView
 )
 from rest_framework.routers import DefaultRouter
@@ -21,5 +22,8 @@ urlpatterns = [
     path('shortcut-keys/bookmark/program/', BookmarkProgram.as_view(), name='bookmark-program'),
     path('shortcut-keys/bookmark/shortcut/', BookmarkShortcut.as_view(), name='bookmark-shortcut'),
     path('shortcut-keys/favorites/', ShortcutKeyFavoritesView.as_view(), name='read-favorites'),
+    path('shortcut-keys/click-history/', ClickHistoryAdd.as_view(), name='click-history'),
+    #path('shortcut-keys/click-history/list/', ClickHistoryAdd.as_view(), name='click-history'),
+    #path('shortcut-keys/click-history/reset/', ClickHistoryAdd.as_view(), name='click-history'),
     path('api/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
 ]

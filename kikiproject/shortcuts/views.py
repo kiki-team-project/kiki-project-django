@@ -12,6 +12,8 @@ from accounts.models import CustomUser
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from collections import deque
+from .samplemodels import SampleModel, get_constants
 
 class ShortcutKeyList(APIView):
     def get(self, request, format=None):
@@ -257,6 +259,67 @@ class BookmarkProgram(APIView):
             # Log the exception if needed
             return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)
 
+class ClickHistoryAdd(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, *args, **kwargs):
+
+        try:
+            platform = request.query_params.get('platform')
+            shortcut_id = request.query_params.get('shortcut_id')
+            constants = get_constants(SampleModel)
+            history_count = constants["HISTORY_COUNT"]
+
+            if platform is None or shortcut_id is None:
+                return Response({"error": "Platform and ID must be provided."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user = request.user
+            userinfo = CustomUser.objects.filter(username=user).first()
+            infolist = userinfo.click_history.split()
+            
+            if shortcut_id not in infolist:
+                               
+                infolist.append(shortcut_id)
+            else:
+                infolist.remove(shortcut_id)
+                infolist.append(shortcut_id)
+
+            if len(infolist) > history_count:
+                infolist = infolist[1:]
+                
+            userinfo.click_history = " ".join(infolist)
+            userinfo.save()
+
+            return Response({"message": "success", "history": infolist, "code" : 0}, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Log the exception if needed
+            return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def get(self, request, *args, **kwargs):
+
+        try:
+            user = request.user
+            userinfo = CustomUser.objects.filter(username=user).first()
+            infolist = userinfo.click_history.split()
+
+            return Response({"message": "success", "history": infolist, "code" : 0}, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Log the exception if needed
+            return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, *args, **kwargs):
+
+        try:
+            user = request.user
+            userinfo = CustomUser.objects.filter(username=user).first()
+            userinfo.click_history = ""
+            userinfo.save()
+            return Response({"message": "success", "code" : 0}, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Log the exception if needed
+            return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 class CustomTokenRefreshView(TokenRefreshView):
     serializer_class = TokenRefreshSerializer
 
@@ -268,7 +331,8 @@ class CustomTokenRefreshView(TokenRefreshView):
         except TokenError as e:
             raise InvalidToken(e.args[0])
 
-        return Response(serializer.validated_data, status=status.HTTP_200_OK)   
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)  
+     
 # class UserSpecificInfoView(APIView):
 #     permission_classes = [IsAuthenticated]
 

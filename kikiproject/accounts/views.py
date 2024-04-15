@@ -23,6 +23,81 @@ from accounts import serializers
 from accounts.models import CustomUser
 
 # Create your views here.
+class UserView(APIView):
+    '''
+    get : 유저 전체 보기
+    post : 회원가입 과정
+        조건 통과 시 UserSerializer 거쳐서 회원가입됨
+    '''
+
+    def get(self, request):
+        user = CustomUser.objects.all()
+        serializer = UserSerializer(user, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        password2 = request.data.get("second_password")
+        nickname = request.data.get("nickname")
+        if not password or not password2:
+            return Response(
+                {"error": "비밀번호 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if not username:
+            return Response(
+                {"error": "이메일 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if not nickname:
+            return Response(
+                {"error": "닉네임 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if password != password2:
+            return Response(
+                {"error": "비밀번호가 일치하지 않습니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if CustomUser.objects.filter(username=username).exists():
+            return Response(
+                {"error": "해당 이메일을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if CustomUser.objects.filter(nickname=nickname).exists():
+            return Response(
+                {"error": "해당 닉네임을 가진 유저가 이미 있습니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if len(password) < 6:
+            return Response(
+                {"error": "비밀번호는 6자리 이상이어야 합니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if len(nickname) > 10 or len(nickname) < 2:
+            return Response(
+                {"error": "닉네임은 2자리 이상, 10자리 이하입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = UserSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        if serializer.is_valid():
+            newuser = serializer.save()
+            response = Response({"message": "register success"},status=status.HTTP_201_CREATED)
+            if newuser:
+                return response
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+
+class LoginView(TokenObtainPairView):
+    '''
+    TokenObtainPairView를 커스터마이징함
+    '''
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+# Create your views here.
 class LoginView(TokenObtainPairView):
     '''
     TokenObtainPairView를 커스터마이징함

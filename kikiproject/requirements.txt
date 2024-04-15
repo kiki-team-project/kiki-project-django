@@ -20,4 +20,7 @@ requests-oauthlib==1.3.1
 sqlparse==0.4.4
 tzdata==2023.4
 urllib3==2.1.0
-Pillow
+Pillow==10.2.0
+django-allauth==0.61.1
+social-auth-app-django==5.4.0
+django-rest-framework-social-oauth2==1.2.0

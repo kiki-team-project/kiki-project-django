@@ -22,6 +22,30 @@ class UserSerializer(ModelSerializer):
         }
 
     def create(self, validated_data):
+
+        password = validated_data.pop("password")
+        user = CustomUser(**validated_data)
+        user.set_password(password)
+        user.save()
+
+        # html = render_to_string(
+        #     "accounts/email_register.html",
+        #     {
+        #         "backend_base_url": settings.BACKEND_BASE_URL,
+        #         "uidb64": urlsafe_base64_encode(force_bytes(user.id)).encode().decode(),
+        #         "token": account_activation_token.make_token(user),
+        #         "user": user,
+        #     },
+        # )
+        # to_email = user.email
+        # send_mail(
+        #     "안녕하세요 키키입니다. 인증메일이 도착했어요!",
+        #     "_",
+        #     settings.DEFAULT_FROM_MAIL,
+        #     [to_email],
+        #     html_message=html,
+        # )
+
         user = CustomUser.objects.create_user(**validated_data)
         user.set_unusable_password()
         return user

@@ -25,7 +25,8 @@ class Command(BaseCommand):
                 
                 # 이미지 파일 업로드 (예시 파일 경로: 'path/to/image.jpg')
                 image_path = f'/images/{platform}.svg'
-                instance.image = image_path               
+                instance.image = image_path  
+                instance.bookmark = 0             
                 # 데이터베이스에 저장
                 instance.save()             
                 
