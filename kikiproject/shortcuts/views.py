@@ -8,7 +8,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import CustomUser
-
+from collections import OrderedDict
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
@@ -290,7 +290,14 @@ class ClickHistoryAdd(APIView):
             userinfo.click_history = " ".join(infolist)
             userinfo.save()
 
-            return Response({"message": "success", "history": infolist, "code" : 0}, status=status.HTTP_200_OK)
+            # 데이터베이스에서 필요한 객체들을 가져옴
+            shortcuts = ShortcutKey.objects.filter(id__in=infolist)
+            shortcut_dict = OrderedDict((str(obj.id), obj) for obj in shortcuts)
+            sorted_shortcuts = [shortcut_dict[str(id)] for id in infolist if str(id) in shortcut_dict]
+
+            # Serializer를 사용하여 데이터 반환
+            serializer = ShortcutKeySerializer(sorted_shortcuts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             # Log the exception if needed
             return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)
@@ -302,7 +309,14 @@ class ClickHistoryAdd(APIView):
             userinfo = CustomUser.objects.filter(username=user).first()
             infolist = userinfo.click_history.split()
 
-            return Response({"message": "success", "history": infolist, "code" : 0}, status=status.HTTP_200_OK)
+            # 데이터베이스에서 필요한 객체들을 가져옴
+            shortcuts = ShortcutKey.objects.filter(id__in=infolist)
+            shortcut_dict = OrderedDict((str(obj.id), obj) for obj in shortcuts)
+            sorted_shortcuts = [shortcut_dict[str(id)] for id in infolist if str(id) in shortcut_dict]
+
+            # Serializer를 사용하여 데이터 반환 
+            serializer = ShortcutKeySerializer(sorted_shortcuts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             # Log the exception if needed
             return Response({"message": "fail", "code" : -1}, status=status.HTTP_400_BAD_REQUEST)

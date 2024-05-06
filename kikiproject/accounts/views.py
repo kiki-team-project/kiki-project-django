@@ -23,7 +23,7 @@ from accounts import serializers
 from accounts.models import CustomUser
 
 # Create your views here.
-class UserView(APIView):
+class UserViewAccount(APIView):
     '''
     get : 유저 전체 보기
     post : 회원가입 과정
@@ -40,6 +40,7 @@ class UserView(APIView):
         password = request.data.get("password")
         password2 = request.data.get("second_password")
         nickname = request.data.get("nickname")
+
         if not password or not password2:
             return Response(
                 {"error": "비밀번호 입력은 필수입니다!"}, status=status.HTTP_400_BAD_REQUEST

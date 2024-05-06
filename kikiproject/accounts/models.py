@@ -48,7 +48,7 @@ class CustomUser(AbstractUser):
     )
     nickname = models.CharField(
         max_length=10,
-        default='Default nickname',
+        default='Default',
     )
     password = models.CharField(max_length=256)
     photo = models.ImageField(upload_to='user_photos/', default='user_photos/default.png')
